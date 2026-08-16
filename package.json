@@ -14,7 +14,9 @@
   "type": "module",
   "dependencies": {
     "@mastra/core": "^1.59.0",
+    "@mastra/editor": "^0.13.13",
     "@mastra/pg": "^1.20.0",
+    "iconv-lite": "^0.7.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {

@@ -1,12 +1,13 @@
 import { Agent } from "@mastra/core/agent";
 
-export const analystAgent = new Agent({
-  id: "business-technical-analyst",
-  name: "Business and Technical Analyst",
+import { SOFTONE_EXPERT_INSTRUCTIONS } from "../instructions/softone-expert";
+import {
+  softoneCall,
+  softoneRelations,
+  softoneSchemaLookup,
+} from "../tools/softone";
 
-  model: "openrouter/deepseek/deepseek-v4-flash",
-
-  instructions: `
+const BASE_ANALYST_INSTRUCTIONS = `
 You are a senior business analyst and solutions architect working for a software development and IT company.
 
 Your responsibility is to receive customer requests and transform them into clear, technically realistic and commercially usable project specifications.
@@ -67,5 +68,24 @@ If the request is incomplete, produce the best possible initial analysis and cle
 Do not produce pricing unless pricing data has been explicitly supplied through tools or project context.
 
 Your output should be concise enough to be useful but detailed enough that a designer, developer, tester and systems engineer can continue the project from your analysis.
-`,
+`.trim();
+
+export const analystAgent = new Agent({
+  id: "business-technical-analyst",
+
+  name: "Business and Technical Analyst",
+
+  model: "openrouter/deepseek/deepseek-v4-flash",
+
+  instructions: `
+${BASE_ANALYST_INSTRUCTIONS}
+
+${SOFTONE_EXPERT_INSTRUCTIONS}
+`.trim(),
+
+  tools: {
+    softoneCall,
+    softoneSchemaLookup,
+    softoneRelations,
+  },
 });
