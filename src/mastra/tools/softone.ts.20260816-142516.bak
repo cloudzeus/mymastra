@@ -4,18 +4,7 @@ import iconv from "iconv-lite";
 import { gunzipSync } from "node:zlib";
 import { existsSync, readFileSync } from "node:fs";
 
-import {
-  getSoftOneConnection,
-  type SoftOneConnection,
-} from "../softone/connection-provider";
-
-/*
- * SoftOne authenticated sessions are installation/connection specific.
- *
- * Never share one global clientID across tenants.
- */
-const clientIdsByConnection =
-  new Map<string, string>();
+let permanentClientId: string | null = null;
 
 type SoftOneResponse = {
   success?: boolean;
@@ -25,11 +14,22 @@ type SoftOneResponse = {
   [key: string]: unknown;
 };
 
+function requiredEnv(name: string): string {
+  const value = process.env[name];
+
+  if (!value) {
+    throw new Error(`${name} is not configured`);
+  }
+
+  return value;
+}
+
 async function raw<T = SoftOneResponse>(
-  connection: SoftOneConnection,
   payload: Record<string, unknown>,
 ): Promise<T> {
-  const res = await fetch(connection.url, {
+  const url = requiredEnv("SOFTONE_URL");
+
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -75,126 +75,66 @@ async function raw<T = SoftOneResponse>(
   }
 }
 
-async function authenticate(
-  connectionId: string,
-  connection: SoftOneConnection,
-): Promise<string> {
-  const login = await raw<SoftOneResponse>(
-    connection,
-    {
-      service: "login",
-      username: connection.username,
-      password: connection.password,
-      appId: connection.appId,
-    },
-  );
+async function authenticate(): Promise<string> {
+  const login = await raw<SoftOneResponse>({
+    service: "login",
+    username: requiredEnv("SOFTONE_USERNAME"),
+    password: requiredEnv("SOFTONE_PASSWORD"),
+    appId: requiredEnv("SOFTONE_APPID"),
+  });
 
   if (!login.success || !login.clientID) {
     throw new Error(
-      `SoftOne login failed for connection ${connectionId}: ${String(
-        login.error ?? "unknown error",
-      )}`,
+      `SoftOne login failed: ${String(login.error ?? "unknown error")}`,
     );
   }
 
-  const auth = await raw<SoftOneResponse>(
-    connection,
-    {
-      service: "authenticate",
-      clientID: login.clientID,
-      company: connection.company,
-      branch: connection.branch,
-      module: connection.module ?? "0",
-      refid: connection.refid,
-    },
-  );
+  const auth = await raw<SoftOneResponse>({
+    service: "authenticate",
+    clientID: login.clientID,
+    company: requiredEnv("SOFTONE_COMPANY"),
+    branch: requiredEnv("SOFTONE_BRANCH"),
+    module: process.env.SOFTONE_MODULE ?? "0",
+    refid: requiredEnv("SOFTONE_REFID"),
+  });
 
   if (!auth.success || !auth.clientID) {
     throw new Error(
-      `SoftOne authenticate failed for connection ${connectionId}: ${String(
+      `SoftOne authenticate failed: ${String(
         auth.error ?? "unknown error",
       )}`,
     );
   }
 
-  clientIdsByConnection.set(
-    connectionId,
-    auth.clientID,
-  );
+  permanentClientId = auth.clientID;
 
   return auth.clientID;
 }
 
 async function withAuth<T = SoftOneResponse>(
-  connectionId: string,
   payload: Record<string, unknown>,
 ): Promise<T> {
-  /*
-   * Credentials are loaded server-side and are never part
-   * of the Mastra tool input or returned to the agent.
-   */
-  const connection =
-    await getSoftOneConnection(
-      connectionId,
-    );
+  const clientID = permanentClientId ?? (await authenticate());
 
-  const cachedClientID =
-    clientIdsByConnection.get(
-      connectionId,
-    );
+  let result = await raw<SoftOneResponse>({
+    ...payload,
+    clientID,
+    appId: requiredEnv("SOFTONE_APPID"),
+  });
 
-  const clientID =
-    cachedClientID ??
-    await authenticate(
-      connectionId,
-      connection,
-    );
-
-  let result =
-    await raw<SoftOneResponse>(
-      connection,
-      {
-        ...payload,
-        clientID,
-        appId:
-          connection.appId,
-      },
-    );
-
-  /*
-   * Negative SoftOne error codes may indicate an invalid/
-   * expired authenticated session.
-   *
-   * Clear only this connection's session and authenticate
-   * again. Never affect another tenant.
-   */
   if (
     result.success === false &&
-    Number(
-      result.errorcode ?? 0,
-    ) < 0
+    Number(result.errorcode ?? 0) < 0
   ) {
-    clientIdsByConnection.delete(
-      connectionId,
-    );
+    permanentClientId = null;
 
-    const freshClientId =
-      await authenticate(
-        connectionId,
-        connection,
-      );
+    const freshClientId = await authenticate();
 
-    result =
-      await raw<SoftOneResponse>(
-        connection,
-        {
-          ...payload,
-          clientID:
-            freshClientId,
-          appId:
-            connection.appId,
-        },
-      );
+    result = await raw<SoftOneResponse>({
+      ...payload,
+      clientID: freshClientId,
+      appId: requiredEnv("SOFTONE_APPID"),
+    });
   }
 
   return result as T;
@@ -211,13 +151,6 @@ export const softoneCall = createTool({
     "Production setData/delData are blocked for the Analyst.",
 
   inputSchema: z.object({
-    connectionId: z
-      .string()
-      .min(1)
-      .describe(
-        "Server-side SoftOne connection identifier. Credentials are never supplied to the agent.",
-      ),
-
     service: z.string().describe(
       "SoftOne service, for example getData, getBrowserInfo, getBrowserData, getObjectTables, getTableFields, calculate",
     ),
@@ -227,40 +160,20 @@ export const softoneCall = createTool({
     ),
   }),
 
-  execute: async ({
-    connectionId,
-    service,
-    payload,
-  }) => {
-    const normalizedService =
-      service.trim().toLowerCase();
-
-    if (
-      ["setdata", "deldata"].includes(
-        normalizedService,
-      )
-    ) {
+  execute: async ({ service, payload }) => {
+    if (["setData", "delData"].includes(service)) {
       return {
         blocked: true,
-        writePerformed: false,
         requiresHumanApproval: true,
         reason:
           "Business Analyst is not allowed to execute production SoftOne writes. Prepare the payload and request approval.",
       };
     }
 
-    /*
-     * service is written AFTER payload so callers cannot
-     * override the approved service by including another
-     * service property inside payload.
-     */
-    return withAuth(
-      connectionId,
-      {
-        ...payload,
-        service,
-      },
-    );
+    return withAuth({
+      service,
+      ...payload,
+    });
   },
 });
 
@@ -396,58 +309,63 @@ export const softoneSchemaLookup = createTool({
   },
 });
 
-type RelationTuple = [
-  sourceObject: string,
-  sourceTable: string,
-  sourceField: string,
-  caption: string,
-  targetObject: string,
-  relationType: string,
-];
-
-type NormalizedRelation = {
-  sourceObject: string;
-  sourceTable: string;
-  sourceField: string;
-  caption: string;
-  targetObject: string;
-  relationType: string;
+type Relation = {
+  from?: string;
+  field?: string;
+  to?: string;
+  source?: string;
+  target?: string;
+  sourceObject?: string;
+  targetObject?: string;
+  fromObject?: string;
+  toObject?: string;
+  object?: string;
+  relatedObject?: string;
+  [key: string]: unknown;
 };
 
-function normalizeRelationTuple(
-  value: unknown,
-): NormalizedRelation | null {
-  if (!Array.isArray(value) || value.length < 6) {
+type NormalizedRelation = Relation & {
+  from: string;
+  to: string;
+};
+
+function normalizeRelation(value: unknown): NormalizedRelation | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
     return null;
   }
 
-  const [
-    sourceObject,
-    sourceTable,
-    sourceField,
-    caption,
-    targetObject,
-    relationType,
-  ] = value;
+  const r = value as Relation;
 
-  if (
-    typeof sourceObject !== "string" ||
-    typeof sourceTable !== "string" ||
-    typeof sourceField !== "string" ||
-    typeof caption !== "string" ||
-    typeof targetObject !== "string" ||
-    typeof relationType !== "string"
-  ) {
+  const from = [
+    r.from,
+    r.source,
+    r.sourceObject,
+    r.fromObject,
+    r.object,
+  ].find(
+    (v): v is string =>
+      typeof v === "string" && v.trim().length > 0,
+  );
+
+  const to = [
+    r.to,
+    r.target,
+    r.targetObject,
+    r.toObject,
+    r.relatedObject,
+  ].find(
+    (v): v is string =>
+      typeof v === "string" && v.trim().length > 0,
+  );
+
+  if (!from || !to) {
     return null;
   }
 
   return {
-    sourceObject,
-    sourceTable,
-    sourceField,
-    caption,
-    targetObject,
-    relationType,
+    ...r,
+    from,
+    to,
   };
 }
 
@@ -455,15 +373,10 @@ export const softoneRelations = createTool({
   id: "softone-relations",
 
   description:
-    "Returns outgoing and incoming SoftOne FK/editor relationships from the cached relations file.",
+    "Returns outgoing and incoming SoftOne relationships from the cached relations file.",
 
   inputSchema: z.object({
-    object: z
-      .string()
-      .min(1)
-      .describe(
-        "SoftOne object, for example ITEM, CUSTOMER, SALDOC or COMPANY",
-      ),
+    object: z.string().min(1),
   }),
 
   execute: async ({ object }) => {
@@ -481,65 +394,58 @@ export const softoneRelations = createTool({
     let parsed: unknown;
 
     try {
-      parsed = JSON.parse(
-        readFileSync(path, "utf8"),
-      ) as unknown;
+      parsed = JSON.parse(readFileSync(path, "utf8"));
     } catch (error) {
       return {
         found: false,
         error:
-          "Could not parse SoftOne relations JSON: " +
-          (error instanceof Error
+          error instanceof Error
             ? error.message
-            : "unknown error"),
+            : "Invalid relations JSON",
       };
     }
 
-    if (!Array.isArray(parsed)) {
+    let rawRelations: unknown[];
+
+    if (Array.isArray(parsed)) {
+      rawRelations = parsed;
+    } else if (
+      parsed &&
+      typeof parsed === "object" &&
+      Array.isArray((parsed as { relations?: unknown }).relations)
+    ) {
+      rawRelations = (parsed as { relations: unknown[] }).relations;
+    } else {
       return {
         found: false,
         error:
-          "SoftOne relations file must contain a top-level array.",
+          "Unsupported relations file structure",
       };
     }
 
-    const objectName =
-      object.trim().toUpperCase();
+    const objectName = object.trim().toUpperCase();
 
-    const relations = parsed
-      .map(normalizeRelationTuple)
+    const normalized = rawRelations
+      .map(normalizeRelation)
       .filter(
-        (
-          relation,
-        ): relation is NormalizedRelation =>
-          relation !== null,
+        (r): r is NormalizedRelation => r !== null,
       );
-
-    const outgoing = relations.filter(
-      (relation) =>
-        relation.sourceObject
-          .trim()
-          .toUpperCase() === objectName,
-    );
-
-    const incoming = relations.filter(
-      (relation) =>
-        relation.targetObject
-          .trim()
-          .toUpperCase() === objectName,
-    );
 
     return {
       found: true,
       object: objectName,
-
-      sourceRecords: parsed.length,
-      validRelations: relations.length,
+      sourceRecords: rawRelations.length,
+      validRelations: normalized.length,
       skippedRelations:
-        parsed.length - relations.length,
+        rawRelations.length - normalized.length,
 
-      outgoing,
-      incoming,
+      outgoing: normalized.filter(
+        (r) => r.from.trim().toUpperCase() === objectName,
+      ),
+
+      incoming: normalized.filter(
+        (r) => r.to.trim().toUpperCase() === objectName,
+      ),
     };
   },
 });

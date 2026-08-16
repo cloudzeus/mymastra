@@ -1,6 +1,5 @@
 import { Mastra } from "@mastra/core/mastra";
 import { PostgresStore } from "@mastra/pg";
-import { MastraEditor } from "@mastra/editor";
 
 import { analystAgent } from "./agents/analyst";
 
@@ -13,8 +12,6 @@ export const mastra = new Mastra({
     id: "mastra-storage",
     connectionString: process.env.DATABASE_URL,
   }),
-
-  editor: new MastraEditor(),
 
   agents: {
     analystAgent,

@@ -1,0 +1,439 @@
+import { createTool } from "@mastra/core/tools";
+import { z } from "zod";
+import { existsSync, readFileSync } from "node:fs";
+import { gunzipSync } from "node:zlib";
+
+import {
+  getSoftOneObjectRegistryEntry,
+  normalizeSoftOneObjectName,
+} from "../softone/registry";
+
+type SchemaField = {
+  name?: string;
+  caption?: string;
+};
+
+type SchemaTable = {
+  name?: string;
+  dbname?: string;
+  caption?: string;
+  fields?: SchemaField[];
+};
+
+type SchemaObject = {
+  type?: string;
+  caption?: string;
+  tables?: SchemaTable[];
+};
+
+type SchemaRoot = Record<string, SchemaObject>;
+
+type DiscoveryResult = {
+  object: string;
+  caption: string | null;
+  type: string | null;
+
+  webServiceMasterTable: string | null;
+  physicalMasterTable: string | null;
+  primaryKey: string | null;
+
+  score: number;
+  matchedBy: string[];
+  registryVerified: boolean;
+};
+
+let cachedSchema: SchemaRoot | null = null;
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, " ");
+}
+
+function loadSchema(): SchemaRoot {
+  if (cachedSchema) {
+    return cachedSchema;
+  }
+
+  const path =
+    process.env.SOFTONE_SCHEMA_PATH ??
+    "data/softone-full-schema.json.gz";
+
+  if (!existsSync(path)) {
+    throw new Error(
+      `SoftOne schema cache not found at ${path}`,
+    );
+  }
+
+  const compressed = readFileSync(path);
+  const json = gunzipSync(compressed).toString("utf8");
+
+  const parsed = JSON.parse(json) as unknown;
+
+  if (
+    !parsed ||
+    typeof parsed !== "object" ||
+    Array.isArray(parsed)
+  ) {
+    throw new Error(
+      "SoftOne schema root must be a JSON object",
+    );
+  }
+
+  cachedSchema = parsed as SchemaRoot;
+
+  return cachedSchema;
+}
+
+function getMasterTable(
+  schemaObject: SchemaObject,
+): string | null {
+  const firstTable = schemaObject.tables?.[0];
+
+  return firstTable?.name ??
+    firstTable?.dbname ??
+    null;
+}
+
+function scoreCandidate(
+  query: string,
+  object: string,
+  schemaObject: SchemaObject,
+): {
+  score: number;
+  matchedBy: string[];
+} {
+  const q = normalizeSearchText(query);
+  const objectNormalized =
+    normalizeSearchText(object);
+
+  const caption =
+    normalizeSearchText(
+      schemaObject.caption ?? "",
+    );
+
+  const registry =
+    getSoftOneObjectRegistryEntry(object);
+
+  const aliases =
+    registry?.aliases?.map(normalizeSearchText) ?? [];
+
+  const tables =
+    schemaObject.tables ?? [];
+
+  const tableNames = tables.flatMap(table => [
+    table.name
+      ? normalizeSearchText(table.name)
+      : "",
+    table.dbname
+      ? normalizeSearchText(table.dbname)
+      : "",
+    table.caption
+      ? normalizeSearchText(table.caption)
+      : "",
+  ]).filter(Boolean);
+
+  let score = 0;
+  const matchedBy: string[] = [];
+
+  /*
+   * Exact object name is strongest.
+   */
+  if (q === objectNormalized) {
+    score += 1000;
+    matchedBy.push("OBJECT_EXACT");
+  }
+
+  /*
+   * Registry aliases are canonical.
+   */
+  if (aliases.includes(q)) {
+    score += 950;
+    matchedBy.push("REGISTRY_ALIAS_EXACT");
+  }
+
+  /*
+   * Exact schema caption.
+   */
+  if (caption && q === caption) {
+    score += 900;
+    matchedBy.push("CAPTION_EXACT");
+  }
+
+  /*
+   * Exact table name/dbname/caption.
+   */
+  if (tableNames.includes(q)) {
+    score += 850;
+    matchedBy.push("TABLE_EXACT");
+  }
+
+  /*
+   * Partial matches.
+   */
+  if (
+    objectNormalized.includes(q) &&
+    q.length >= 3
+  ) {
+    score += 350;
+    matchedBy.push("OBJECT_PARTIAL");
+  }
+
+  if (
+    caption &&
+    caption.includes(q) &&
+    q.length >= 3
+  ) {
+    score += 500;
+    matchedBy.push("CAPTION_PARTIAL");
+  }
+
+  if (
+    aliases.some(alias =>
+      alias.includes(q)
+    ) &&
+    q.length >= 3
+  ) {
+    score += 450;
+    matchedBy.push("REGISTRY_ALIAS_PARTIAL");
+  }
+
+  if (
+    tableNames.some(table =>
+      table.includes(q)
+    ) &&
+    q.length >= 3
+  ) {
+    score += 250;
+    matchedBy.push("TABLE_PARTIAL");
+  }
+
+  /*
+   * Token coverage helps phrases such as:
+   * "παραστατικά πώλησης"
+   */
+  const queryTokens = q
+    .split(" ")
+    .filter(token => token.length >= 3);
+
+  if (queryTokens.length > 1) {
+    /*
+     * Natural-language token matching must use only
+     * business-object identity data.
+     *
+     * Do NOT include table names/captions here because many
+     * SoftOne objects reuse the same tables and this creates
+     * false positives between objects such as SALDOC/PURDOC.
+     */
+    const searchableText = [
+      objectNormalized,
+      caption,
+      ...aliases,
+    ].join(" ");
+
+    const matchedTokens =
+      queryTokens.filter(token =>
+        searchableText.includes(token)
+      );
+
+    if (matchedTokens.length > 0) {
+      const coverage =
+        matchedTokens.length /
+        queryTokens.length;
+
+      score += Math.round(
+        coverage * 300,
+      );
+
+      matchedBy.push(
+        `TOKEN_COVERAGE_${matchedTokens.length}_${queryTokens.length}`,
+      );
+    }
+  }
+
+  return {
+    score,
+    matchedBy,
+  };
+}
+
+export const softoneObjectDiscovery = createTool({
+  id: "softone-object-discovery",
+
+  description: `
+Deterministically discovers SoftOne business objects from cached schema
+and canonical registry.
+
+Use when the user provides:
+- Greek business terminology
+- an uncertain SoftOne object name
+- an alias
+- a table name
+- a partial object/caption
+
+Examples:
+"είδη"
+"πελάτες"
+"παραστατικά πώλησης"
+"ITEM"
+"SALDOC"
+
+Do not guess an object if discovery returns no confident result.
+`,
+
+  inputSchema: z.object({
+    query: z
+      .string()
+      .min(1)
+      .describe(
+        "SoftOne object, alias, Greek business term or table name",
+      ),
+
+    limit: z
+      .number()
+      .int()
+      .min(1)
+      .max(20)
+      .optional()
+      .default(10),
+  }),
+
+  execute: async ({
+    query,
+    limit,
+  }) => {
+    const schema = loadSchema();
+
+    /*
+     * First try direct canonical normalization.
+     */
+    const canonical =
+      normalizeSoftOneObjectName(query);
+
+    const results: DiscoveryResult[] =
+      Object.entries(schema)
+        .map(([object, schemaObject]) => {
+          const {
+            score,
+            matchedBy,
+          } = scoreCandidate(
+            query,
+            object,
+            schemaObject,
+          );
+
+          /*
+           * Extra deterministic bonus when registry
+           * normalization resolves directly.
+           */
+          let finalScore = score;
+
+          if (
+            canonical === object &&
+            canonical !==
+              normalizeSearchText(query)
+          ) {
+            finalScore += 500;
+            matchedBy.push(
+              "CANONICAL_NORMALIZATION",
+            );
+          }
+
+          const registry =
+            getSoftOneObjectRegistryEntry(
+              object,
+            );
+
+          return {
+            object,
+            caption:
+              schemaObject.caption ?? null,
+
+            type:
+              schemaObject.type ?? null,
+
+            webServiceMasterTable:
+              registry
+                ?.webServiceMasterTable ??
+              getMasterTable(schemaObject),
+
+            physicalMasterTable:
+              registry
+                ?.physicalMasterTable ??
+              null,
+
+            primaryKey:
+              registry?.primaryKey ??
+              null,
+
+            score: finalScore,
+            matchedBy,
+
+            registryVerified:
+              registry !== null,
+          };
+        })
+        .filter(result =>
+          result.score > 0
+        )
+        .sort((a, b) => {
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+
+          return a.object.localeCompare(
+            b.object,
+          );
+        })
+        .slice(0, limit);
+
+    const best =
+      results[0] ?? null;
+
+    /*
+     * Conservative confidence rules.
+     */
+    let confidence:
+      | "HIGH"
+      | "MEDIUM"
+      | "LOW"
+      | "NONE" = "NONE";
+
+    if (best) {
+      if (best.score >= 850) {
+        confidence = "HIGH";
+      } else if (best.score >= 500) {
+        confidence = "MEDIUM";
+      } else {
+        confidence = "LOW";
+      }
+    }
+
+    return {
+      found: results.length > 0,
+      query,
+      normalizedQuery:
+        normalizeSearchText(query),
+
+      confidence,
+
+      bestMatch: best,
+
+      candidates: results,
+
+      provenance: [
+        "SCHEMA_CACHE",
+        "REGISTRY",
+      ],
+
+      instruction:
+        confidence === "LOW" ||
+        confidence === "NONE"
+          ? "Do not assume the SoftOne object. Ask for clarification or report that the object was not confidently resolved."
+          : "Use bestMatch as the resolved object and continue with schema/relations lookup.",
+    };
+  },
+});

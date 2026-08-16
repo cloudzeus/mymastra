@@ -1,50 +1,14 @@
 import { Agent } from "@mastra/core/agent";
-import {
-  SOFTONE_READ_POLICY_INSTRUCTIONS,
-} from "../instructions/softone-read-policy";
 
-
+import { SOFTONE_EXPERT_INSTRUCTIONS } from "../instructions/softone-expert";
 import {
-  SOFTONE_EXPERT_INSTRUCTIONS,
-  SOFTONE_GROUNDING_INSTRUCTIONS,
-  SOFTONE_STRICT_NO_INVENTION_INSTRUCTIONS,
-  SOFTONE_OBJECT_DISCOVERY_INSTRUCTIONS,
-} from "../instructions/softone-expert";
-
 import {
+  softoneObjectRegistryLookup,
+} from "../tools/softone-registry";
   softoneCall,
   softoneRelations,
   softoneSchemaLookup,
 } from "../tools/softone";
-
-import {
-  softoneObjectRegistryLookup,
-} from "../tools/softone-registry";
-
-import {
-  softoneObjectDiscovery,
-} from "../tools/softone-discovery";
-
-import {
-  softoneObjectProfile,
-} from "../tools/softone-profile";
-
-import {
-  softoneObjectContract,
-} from "../tools/softone-object-contract";
-
-
-import {
-  softoneReferenceResolver,
-} from "../tools/softone-reference-resolver";
-
-import {
-  softonePayloadPlan,
-} from "../tools/softone-payload-plan";
-
-import {
-  softoneTenantReferenceResolver,
-} from "../tools/softone-tenant-resolver";
 
 const BASE_ANALYST_INSTRUCTIONS = `
 You are a senior business analyst and solutions architect working for a software development and IT company.
@@ -58,13 +22,8 @@ Company preferred application stack:
 Next.js 16.3
 TypeScript
 Prisma ORM
-PostgreSQL
-
-PostgreSQL is the company's default relational database.
-Use PostgreSQL by default for all new application architectures.
-Do not recommend MySQL unless there is an explicit legacy,
-vendor, compatibility, migration, or customer requirement.
-
+MySQL
+PostgreSQL when technically appropriate
 Tailwind CSS
 shadcn/ui
 Mastra for AI systems
@@ -114,26 +73,6 @@ Do not produce pricing unless pricing data has been explicitly supplied through 
 Your output should be concise enough to be useful but detailed enough that a designer, developer, tester and systems engineer can continue the project from your analysis.
 `.trim();
 
-import {
-  softoneObjectKnowledge,
-} from "../tools/softone-object-knowledge";
-
-import {
-  SOFTONE_KNOWLEDGE_POLICY_INSTRUCTIONS,
-} from "../instructions/softone-knowledge-policy";
-
-import {
-  softoneSemanticKnowledge,
-} from "../tools/softone-semantic-knowledge";
-
-import {
-  softoneSemanticCompose,
-} from "../tools/softone-semantic-compose";
-
-import {
-  SOFTONE_SEMANTIC_COMPOSITION_POLICY_INSTRUCTIONS,
-} from "../instructions/softone-semantic-composition-policy";
-
 export const analystAgent = new Agent({
   id: "business-technical-analyst",
 
@@ -145,16 +84,6 @@ export const analystAgent = new Agent({
 ${BASE_ANALYST_INSTRUCTIONS}
 
 ${SOFTONE_EXPERT_INSTRUCTIONS}
-${SOFTONE_KNOWLEDGE_POLICY_INSTRUCTIONS}
-${SOFTONE_SEMANTIC_COMPOSITION_POLICY_INSTRUCTIONS}
-
-${SOFTONE_READ_POLICY_INSTRUCTIONS}
-
-${SOFTONE_GROUNDING_INSTRUCTIONS}
-
-${SOFTONE_STRICT_NO_INVENTION_INSTRUCTIONS}
-
-${SOFTONE_OBJECT_DISCOVERY_INSTRUCTIONS}
 `.trim(),
 
   tools: {
@@ -162,13 +91,5 @@ ${SOFTONE_OBJECT_DISCOVERY_INSTRUCTIONS}
     softoneSchemaLookup,
     softoneRelations,
     softoneObjectRegistryLookup,
-    softoneObjectDiscovery,
-    softoneObjectProfile,
-    softoneObjectContract,
-    softoneReferenceResolver,
-    softonePayloadPlan,
-    softoneTenantReferenceResolver,
-    softoneSemanticKnowledge,
-    softoneSemanticCompose,
   },
 });
