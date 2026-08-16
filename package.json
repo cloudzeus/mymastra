@@ -1,0 +1,25 @@
+{
+  "name": "mastra-ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "mastra dev",
+    "build": "mastra build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@mastra/core": "^1.59.0",
+    "@mastra/pg": "^1.20.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "mastra": "^1.25.0",
+    "typescript": "^6.0.3"
+  }
+}
