@@ -43,3 +43,12 @@ export type {
 export {
   resolveDeveloperWorkOrder,
 } from "./developer-work-order-resolver";
+
+export type {
+  DeveloperFileWriteInput,
+  DeveloperFileWriteResult,
+} from "./developer-filesystem-gateway";
+
+export {
+  writeDeveloperFile,
+} from "./developer-filesystem-gateway";
