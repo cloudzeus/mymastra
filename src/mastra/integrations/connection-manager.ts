@@ -44,6 +44,8 @@ export type IntegrationConnectionSummary = {
 
   isActive: boolean;
 
+  isDefault: boolean;
+
   lastVerifiedAt?: string;
 
   createdAt: string;
@@ -66,6 +68,8 @@ export type CreateTenantIntegrationConnectionInput = {
 
   secrets?:
     Record<string, unknown>;
+
+  isDefault?: boolean;
 };
 
 
@@ -89,6 +93,8 @@ export type UpdateTenantIntegrationConnectionInput = {
     Record<string, unknown>;
 
   isActive?: boolean;
+
+  isDefault?: boolean;
 };
 
 
@@ -113,6 +119,8 @@ type ConnectionSummaryRow = {
   has_secrets: boolean;
 
   is_active: boolean;
+
+  is_default: boolean;
 
   last_verified_at:
     string | null;
@@ -174,6 +182,9 @@ function mapSummary(
 
     isActive:
       row.is_active,
+
+    isDefault:
+      row.is_default,
 
     lastVerifiedAt:
       row.last_verified_at ??
@@ -305,7 +316,8 @@ export async function createTenantIntegrationConnection(
         name,
         environment,
         config,
-        secrets_encrypted
+        secrets_encrypted,
+        is_default
       )
       VALUES (
         $1,
@@ -313,19 +325,21 @@ export async function createTenantIntegrationConnection(
         $3,
         $4,
         $5::jsonb,
-        $6
+        $6,
+        $7
       )
       RETURNING
         id::text,
         tenant_id::text,
         provider_id::text,
-        $7::text AS provider_code,
-        $8::text AS category,
+        $8::text AS provider_code,
+        $9::text AS category,
         name,
         environment,
         config,
         (secrets_encrypted IS NOT NULL) AS has_secrets,
         is_active,
+        is_default,
         last_verified_at::text,
         created_at::text,
         updated_at::text
@@ -339,6 +353,7 @@ export async function createTenantIntegrationConnection(
           config,
         ),
         secretsEncrypted,
+        input.isDefault ?? false,
         provider.code,
         provider.category,
       ],
@@ -514,6 +529,12 @@ export async function updateTenantIntegrationConnection(
             ic.is_active
           ),
 
+        is_default =
+          COALESCE(
+            $8,
+            ic.is_default
+          ),
+
         updated_at =
           now()
 
@@ -537,6 +558,7 @@ export async function updateTenantIntegrationConnection(
           IS NOT NULL
         ) AS has_secrets,
         ic.is_active,
+        ic.is_default,
         ic.last_verified_at::text,
         ic.created_at::text,
         ic.updated_at::text
@@ -563,6 +585,9 @@ export async function updateTenantIntegrationConnection(
           null,
 
         input.isActive ??
+          null,
+
+        input.isDefault ??
           null,
       ],
     );
@@ -614,6 +639,7 @@ export async function listTenantIntegrationConnections(
           IS NOT NULL
         ) AS has_secrets,
         ic.is_active,
+        ic.is_default,
         ic.last_verified_at::text,
         ic.created_at::text,
         ic.updated_at::text

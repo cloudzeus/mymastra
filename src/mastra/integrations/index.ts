@@ -8,6 +8,11 @@ export {
 
 export {
   getTenantIntegrationConnection,
+  resolveTenantIntegrationConnection,
+} from "./connection-provider";
+
+export type {
+  ResolveTenantIntegrationConnectionInput,
 } from "./connection-provider";
 
 export {

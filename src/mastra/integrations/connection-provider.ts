@@ -197,3 +197,127 @@ export async function getTenantIntegrationConnection(
       undefined,
   };
 }
+
+
+export type ResolveTenantIntegrationConnectionInput = {
+  tenantId: string;
+
+  providerCode: string;
+
+  environment:
+    IntegrationEnvironment;
+
+  connectionId?:
+    string;
+};
+
+
+export async function resolveTenantIntegrationConnection(
+  input:
+    ResolveTenantIntegrationConnectionInput,
+): Promise<IntegrationConnection> {
+  if (!input.tenantId?.trim()) {
+    throw new Error(
+      "tenantId is required",
+    );
+  }
+
+
+  if (!input.providerCode?.trim()) {
+    throw new Error(
+      "providerCode is required",
+    );
+  }
+
+
+  if (
+    input.connectionId?.trim()
+  ) {
+    const connection =
+      await getTenantIntegrationConnection(
+        input.connectionId,
+      );
+
+
+    if (
+      connection.tenantId !==
+      input.tenantId
+    ) {
+      throw new Error(
+        `Integration connection tenant mismatch: expected ${input.tenantId}, got ${connection.tenantId}`,
+      );
+    }
+
+
+    if (
+      connection.providerCode !==
+      input.providerCode
+    ) {
+      throw new Error(
+        `Integration connection provider mismatch: expected ${input.providerCode}, got ${connection.providerCode}`,
+      );
+    }
+
+
+    if (
+      connection.environment !==
+      input.environment
+    ) {
+      throw new Error(
+        `Integration connection environment mismatch: expected ${input.environment}, got ${connection.environment}`,
+      );
+    }
+
+
+    return connection;
+  }
+
+
+  const result =
+    await appDb.query<{
+      id: string;
+    }>(
+      `
+      SELECT
+        ic.id::text
+      FROM app.integration_connections ic
+      INNER JOIN app.integration_providers p
+        ON p.id = ic.provider_id
+      WHERE ic.tenant_id = $1
+        AND p.code = $2
+        AND ic.environment = $3
+        AND ic.is_active = true
+        AND ic.is_default = true
+        AND p.is_active = true
+      LIMIT 2
+      `,
+      [
+        input.tenantId,
+        input.providerCode,
+        input.environment,
+      ],
+    );
+
+
+  if (
+    result.rowCount === 0
+  ) {
+    throw new Error(
+      `Integration connection BLOCKED: no active default for tenant=${input.tenantId} provider=${input.providerCode} environment=${input.environment}`,
+    );
+  }
+
+
+  if (
+    result.rowCount !== 1
+  ) {
+    throw new Error(
+      `Integration connection invariant violation: multiple active defaults for tenant=${input.tenantId} provider=${input.providerCode} environment=${input.environment}`,
+    );
+  }
+
+
+  return getTenantIntegrationConnection(
+    result.rows[0].id,
+  );
+}
