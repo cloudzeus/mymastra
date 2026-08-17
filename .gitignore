@@ -11,3 +11,18 @@ coverage
 # Local source backups
 *.bak
 *.bak.*
+
+# Private / generated SoftOne knowledge data
+data/sources/
+data/soft1-gmail-corpus.initial.json
+data/softone-blackbook-all-candidates.json
+data/softone-blackbook-classified-candidates.json
+data/softone-blackbook-corpus.json
+data/softone-blackbook-full-evidence.json
+data/softone-blackbook-page-index.json
+data/softone-blackbook-promotable-candidates.json
+data/softone-blackbook-scheduler-candidates.json
+data/softone-blackbook-scheduler-evidence.json
+data/softone-evidence-catalog.json
+data/softone-ingestion-state.json
+data/softone-review-queue.json

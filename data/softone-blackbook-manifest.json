@@ -1,0 +1,96 @@
+{
+  "formatVersion": 1,
+  "source": {
+    "sourceId": "OFFICIAL_SOFTONE_BLACKBOOK_3_5",
+    "title": "SoftOne The Black Book",
+    "version": "3.5",
+    "language": "English",
+    "authority": "OFFICIAL_DOCUMENTATION"
+  },
+  "chapters": [
+    {
+      "number": 1,
+      "title": "Screen Forms / UI Controls",
+      "startPage": 14,
+      "endPage": 84
+    },
+    {
+      "number": 2,
+      "title": "Browsers",
+      "startPage": 85,
+      "endPage": 98
+    },
+    {
+      "number": 3,
+      "title": "Printout Forms",
+      "startPage": 99,
+      "endPage": 132
+    },
+    {
+      "number": 4,
+      "title": "Alerts - EDA Event Driven Actions",
+      "startPage": 133,
+      "endPage": 145
+    },
+    {
+      "number": 5,
+      "title": "User-Defined Fields",
+      "startPage": 146,
+      "endPage": 169
+    },
+    {
+      "number": 6,
+      "title": "Database Designer",
+      "startPage": 170,
+      "endPage": 232
+    },
+    {
+      "number": 7,
+      "title": "Extra Tools",
+      "startPage": 233,
+      "endPage": 244
+    },
+    {
+      "number": 8,
+      "title": "Scheduler & Messages",
+      "startPage": 245,
+      "endPage": 264
+    },
+    {
+      "number": 9,
+      "title": "Form Scripts",
+      "startPage": 265,
+      "endPage": 366
+    },
+    {
+      "number": 10,
+      "title": "Data Flows",
+      "startPage": 367,
+      "endPage": 390
+    },
+    {
+      "number": 11,
+      "title": "SoftOne Batch Script Language (SBSL)",
+      "startPage": 391,
+      "endPage": 459
+    },
+    {
+      "number": 12,
+      "title": "Web Services",
+      "startPage": 460,
+      "endPage": 501
+    },
+    {
+      "number": 13,
+      "title": "Business Automation Machine",
+      "startPage": 502,
+      "endPage": 540
+    },
+    {
+      "number": 14,
+      "title": "Appendix System Parameters & Commands",
+      "startPage": 541,
+      "endPage": 573
+    }
+  ]
+}
