@@ -52,3 +52,17 @@ export type {
 export {
   writeDeveloperFile,
 } from "./developer-filesystem-gateway";
+
+export type {
+  PersistedProjectDefinition,
+  PersistedDeveloperWorkOrder,
+  DeveloperExecutionContext,
+} from "./developer-contract-manager";
+
+export {
+  createProjectDefinition,
+  getProjectDefinition,
+  createDeveloperWorkOrder,
+  getDeveloperWorkOrder,
+  loadDeveloperExecutionContext,
+} from "./developer-contract-manager";
