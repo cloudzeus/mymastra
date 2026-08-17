@@ -23,18 +23,34 @@ function visibleToTenant(
   node: SoftOneSemanticNode,
   tenantCode: string,
 ): boolean {
-  if (node.scope === "GLOBAL") {
+  /*
+   * GLOBAL:
+   * version/tenant-independent reusable knowledge.
+   *
+   * RECIPE:
+   * reusable verified implementation knowledge whose literals,
+   * conditions and semantics remain bound to the stored recipe.
+   * Visibility does NOT promote those literals to tenant-global
+   * configuration.
+   */
+  if (
+    node.scope === "GLOBAL" ||
+    node.scope === "RECIPE"
+  ) {
     return true;
   }
 
-  if (node.tenantCode) {
+  /*
+   * TENANT knowledge is visible only to the explicitly bound
+   * tenant.
+   */
+  if (
+    node.scope === "TENANT" &&
+    node.tenantCode
+  ) {
     return node.tenantCode === tenantCode;
   }
 
-  /*
-   * Non-global knowledge without an explicit tenant binding
-   * is not considered safe for cross-tenant composition.
-   */
   return false;
 }
 

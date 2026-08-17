@@ -32,6 +32,21 @@ export type SoftOneBusinessRecipe = {
   output: Array<{
     name: string;
     meaning: string;
+
+    /*
+     * Optional explicit projection metadata.
+     *
+     * This must be declared by the verified recipe itself.
+     * The planner must never infer metric/output mappings from
+     * names or free-text meanings.
+     */
+    role?:
+      | "IDENTITY"
+      | "METRIC";
+
+    metricDependencyId?: string;
+
+    alwaysInclude?: boolean;
   }>;
 
   sqlTemplate?: string;
@@ -107,34 +122,50 @@ export const SOFTONE_BUSINESS_RECIPES: SoftOneBusinessRecipe[] = [
       {
         name: "MTRL",
         meaning: "Material/item identifier",
+        role: "IDENTITY",
+        alwaysInclude: true,
       },
       {
         name: "ERPCODE",
         meaning: "ERP item code from MTRL.CODE",
+        role: "IDENTITY",
+        alwaysInclude: true,
       },
       {
         name: "EANCODE",
         meaning: "EAN code from MTRL.CODE1",
+        role: "IDENTITY",
+        alwaysInclude: true,
       },
       {
         name: "MANUFACTURECODE",
         meaning: "Manufacturer code from MTRL.CODE2",
+        role: "IDENTITY",
+        alwaysInclude: true,
       },
       {
         name: "NAME",
         meaning: "Item description from MTRL.NAME",
+        role: "IDENTITY",
+        alwaysInclude: true,
       },
       {
         name: "AVAILABLE",
         meaning: "Available quantity from ITEM_AVAILABLE metric",
+        role: "METRIC",
+        metricDependencyId: "ITEM_AVAILABLE",
       },
       {
         name: "SUPPLIERORDER",
         meaning: "Pending supplier order quantity",
+        role: "METRIC",
+        metricDependencyId: "ITEM_SUPPLIER_ORDER",
       },
       {
         name: "RESERVED",
         meaning: "Reserved quantity",
+        role: "METRIC",
+        metricDependencyId: "ITEM_RESERVED",
       },
     ],
 

@@ -132,6 +132,10 @@ import {
 } from "../tools/softone-semantic-compose";
 
 import {
+  softoneStructuredSqlPlan,
+} from "../tools/softone-structured-sql-plan";
+
+import {
   SOFTONE_SEMANTIC_COMPOSITION_POLICY_INSTRUCTIONS,
 } from "../instructions/softone-semantic-composition-policy";
 
@@ -320,6 +324,7 @@ ${SOFTONE_OBJECT_DISCOVERY_INSTRUCTIONS}
     softoneTenantReferenceResolver,
     softoneSemanticKnowledge,
     softoneSemanticCompose,
+    softoneStructuredSqlPlan,
     softoneCommunityKnowledge,
   },
 });

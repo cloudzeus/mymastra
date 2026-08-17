@@ -37,7 +37,7 @@ function normalize(value: string): string {
 
 function legacyFacts(): SoftOneSemanticNode[] {
   return SOFTONE_SEMANTIC_FACTS.map((fact) => {
-    const tenantScoped =
+    const recipeScoped =
       fact.provenance.includes("USER_VERIFIED_SQL");
 
     return {
@@ -50,8 +50,7 @@ function legacyFacts(): SoftOneSemanticNode[] {
         ? [fact.businessObject]
         : undefined,
 
-      scope: tenantScoped ? "TENANT" : "GLOBAL",
-      tenantCode: tenantScoped ? "CUSTOMER1" : undefined,
+      scope: recipeScoped ? "RECIPE" : "GLOBAL",
 
       evidence: fact.evidenceStatus,
       provenance: fact.provenance,
@@ -83,7 +82,7 @@ function legacyMetrics(): SoftOneSemanticNode[] {
   return SOFTONE_BUSINESS_METRICS
     .filter((metric) => !promotedDatasets.has(metric.id))
     .map((metric) => {
-      const tenantScoped =
+      const recipeScoped =
         metric.provenance.includes("USER_VERIFIED_SQL");
 
       return {
@@ -94,8 +93,7 @@ function legacyMetrics(): SoftOneSemanticNode[] {
 
         businessObjects: [metric.businessObject],
 
-        scope: tenantScoped ? "TENANT" : "GLOBAL",
-        tenantCode: tenantScoped ? "CUSTOMER1" : undefined,
+        scope: recipeScoped ? "RECIPE" : "GLOBAL",
 
         evidence: metric.evidenceStatus,
         provenance: metric.provenance,
@@ -123,7 +121,7 @@ function legacyMetrics(): SoftOneSemanticNode[] {
 
 function legacyRecipes(): SoftOneSemanticNode[] {
   return SOFTONE_BUSINESS_RECIPES.map((recipe) => {
-    const tenantScoped =
+    const recipeScoped =
       recipe.provenance.includes("USER_VERIFIED_SQL");
 
     return {
@@ -134,8 +132,7 @@ function legacyRecipes(): SoftOneSemanticNode[] {
 
       businessObjects: [recipe.businessObject],
 
-      scope: tenantScoped ? "TENANT" : "GLOBAL",
-      tenantCode: tenantScoped ? "CUSTOMER1" : undefined,
+      scope: recipeScoped ? "RECIPE" : "GLOBAL",
 
       evidence: recipe.evidenceStatus,
       provenance: recipe.provenance,
