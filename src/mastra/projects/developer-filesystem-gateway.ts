@@ -51,6 +51,30 @@ export type DeveloperFileWriteResult = {
 };
 
 
+export type DeveloperFileReadInput = {
+  workOrder:
+    DeveloperWorkOrder;
+
+  projectDefinition:
+    ProjectDefinitionPackage;
+
+  relativePath: string;
+};
+
+
+export type DeveloperFileReadResult = {
+  projectId: string;
+
+  relativePath: string;
+
+  absolutePath: string;
+
+  content: string;
+
+  bytesRead: number;
+};
+
+
 function normalizeDeveloperRelativePath(
   relativePath: string,
 ): string {
@@ -394,20 +418,25 @@ async function ensureSafeParentDirectories(
 }
 
 
-export async function writeDeveloperFile(
-  input:
-    DeveloperFileWriteInput,
-): Promise<DeveloperFileWriteResult> {
+async function resolveAuthorizedDeveloperTarget(
+  workOrder:
+    DeveloperWorkOrder,
+
+  projectDefinition:
+    ProjectDefinitionPackage,
+
+  requestedRelativePath: string,
+) {
   const resolved =
     await resolveDeveloperWorkOrder(
-      input.workOrder,
-      input.projectDefinition,
+      workOrder,
+      projectDefinition,
     );
 
 
   const relativePath =
     normalizeDeveloperRelativePath(
-      input.relativePath,
+      requestedRelativePath,
     );
 
 
@@ -468,6 +497,30 @@ export async function writeDeveloperFile(
     resolved.workspace.workspacePath,
     absolutePath,
   );
+
+
+  return {
+    resolved,
+    relativePath,
+    absolutePath,
+  };
+}
+
+
+export async function writeDeveloperFile(
+  input:
+    DeveloperFileWriteInput,
+): Promise<DeveloperFileWriteResult> {
+  const {
+    resolved,
+    relativePath,
+    absolutePath,
+  } =
+    await resolveAuthorizedDeveloperTarget(
+      input.workOrder,
+      input.projectDefinition,
+      input.relativePath,
+    );
 
 
   const exists =
@@ -594,4 +647,167 @@ export async function writeDeveloperFile(
     bytesWritten:
       data.byteLength,
   };
+}
+
+
+
+const MAX_DEVELOPER_READ_BYTES =
+  1_048_576;
+
+
+export async function readDeveloperFile(
+  input:
+    DeveloperFileReadInput,
+): Promise<DeveloperFileReadResult> {
+  const {
+    resolved,
+    relativePath,
+    absolutePath,
+  } =
+    await resolveAuthorizedDeveloperTarget(
+      input.workOrder,
+      input.projectDefinition,
+      input.relativePath,
+    );
+
+
+  const exists =
+    await pathExists(
+      absolutePath,
+    );
+
+
+  if (
+    !exists
+  ) {
+    throw new Error(
+      `Developer filesystem BLOCKED: target file does not exist: ${relativePath}`,
+    );
+  }
+
+
+  const existingStat =
+    await lstat(
+      absolutePath,
+    );
+
+
+  if (
+    existingStat.isSymbolicLink()
+  ) {
+    throw new Error(
+      `Developer filesystem BLOCKED: target file is a symbolic link: ${relativePath}`,
+    );
+  }
+
+
+  if (
+    !existingStat.isFile()
+  ) {
+    throw new Error(
+      `Developer filesystem BLOCKED: target is not a regular file: ${relativePath}`,
+    );
+  }
+
+
+  /*
+   * Re-check the full path immediately before opening the target.
+   */
+  await assertNoSymlinkPath(
+    resolved.workspace.workspacePath,
+    absolutePath,
+  );
+
+
+  const flags =
+    constants.O_RDONLY |
+    constants.O_NOFOLLOW;
+
+
+  const handle =
+    await open(
+      absolutePath,
+      flags,
+    );
+
+
+  try {
+    /*
+     * Check the already-open file descriptor rather than relying
+     * only on the earlier path-based stat.
+     */
+    const openedStat =
+      await handle.stat();
+
+
+    if (
+      !openedStat.isFile()
+    ) {
+      throw new Error(
+        `Developer filesystem BLOCKED: opened target is not a regular file: ${relativePath}`,
+      );
+    }
+
+
+    if (
+      openedStat.size >
+      MAX_DEVELOPER_READ_BYTES
+    ) {
+      throw new Error(
+        `Developer filesystem BLOCKED: file exceeds ${MAX_DEVELOPER_READ_BYTES} byte read limit: ${relativePath}`,
+      );
+    }
+
+
+    const data =
+      await handle.readFile();
+
+
+    if (
+      data.byteLength >
+      MAX_DEVELOPER_READ_BYTES
+    ) {
+      throw new Error(
+        `Developer filesystem BLOCKED: file exceeds ${MAX_DEVELOPER_READ_BYTES} byte read limit: ${relativePath}`,
+      );
+    }
+
+
+    let content: string;
+
+
+    try {
+      content =
+        new TextDecoder(
+          "utf-8",
+          {
+            fatal:
+              true,
+          },
+        ).decode(
+          data,
+        );
+    } catch {
+      throw new Error(
+        `Developer filesystem BLOCKED: file is not valid UTF-8 text: ${relativePath}`,
+      );
+    }
+
+
+    return {
+      projectId:
+        input.workOrder.projectId,
+
+      relativePath,
+
+      absolutePath,
+
+      content,
+
+      bytesRead:
+        data.byteLength,
+    };
+  } finally {
+    await handle.close();
+  }
 }

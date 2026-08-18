@@ -47,10 +47,13 @@ export {
 export type {
   DeveloperFileWriteInput,
   DeveloperFileWriteResult,
+  DeveloperFileReadInput,
+  DeveloperFileReadResult,
 } from "./developer-filesystem-gateway";
 
 export {
   writeDeveloperFile,
+  readDeveloperFile,
 } from "./developer-filesystem-gateway";
 
 export type {
