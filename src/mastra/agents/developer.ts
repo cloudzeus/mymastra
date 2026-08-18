@@ -10,6 +10,10 @@ import {
   developerWriteFile,
 } from "../tools/developer-write-file";
 
+import {
+  createAgentAccountingDefaults,
+} from "../accounting/agent-accounting";
+
 
 const DEVELOPER_INSTRUCTIONS = `
 You are a senior software developer working inside a controlled,
@@ -184,6 +188,20 @@ export const developerAgent =
 
     instructions:
       DEVELOPER_INSTRUCTIONS,
+
+    defaultOptions:
+      createAgentAccountingDefaults({
+        agentId:
+          "software-developer",
+        agentRole:
+          "SOFTWARE_DEVELOPER",
+        workflowType:
+          "SOFTWARE_DEVELOPMENT",
+        provider:
+          "openrouter",
+        model:
+          "deepseek/deepseek-v4-flash",
+      }),
 
     tools: {
       developerWorkOrderContext,

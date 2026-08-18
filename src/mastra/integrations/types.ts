@@ -9,6 +9,7 @@ export type IntegrationCategory =
   | "EMAIL"
   | "IMAGE_PROCESSING"
   | "AI_PROVIDER"
+  | "RESEARCH"
   | "OTHER";
 
 

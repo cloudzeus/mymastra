@@ -1,5 +1,6 @@
 import { softoneCommunityKnowledge } from "../tools/softone-community-knowledge";
 import { Agent } from "@mastra/core/agent";
+import { createAgentAccountingDefaults } from "../accounting/agent-accounting";
 import {
   SOFTONE_READ_POLICY_INSTRUCTIONS,
 } from "../instructions/softone-read-policy";
@@ -292,6 +293,14 @@ export const analystAgent = new Agent({
   name: "Business and Technical Analyst",
 
   model: "openrouter/deepseek/deepseek-v4-flash",
+
+  defaultOptions: createAgentAccountingDefaults({
+    agentId: "business-technical-analyst",
+    agentRole: "BUSINESS_TECHNICAL_ANALYST",
+    workflowType: "BUSINESS_TECHNICAL_ANALYSIS",
+    provider: "openrouter",
+    model: "deepseek/deepseek-v4-flash",
+  }),
 
   instructions: `
 ${BASE_ANALYST_INSTRUCTIONS}

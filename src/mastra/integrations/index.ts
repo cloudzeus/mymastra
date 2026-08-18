@@ -93,3 +93,5 @@ export type {
   ClaidRemoveBackgroundInput,
   ClaidRemoveBackgroundResult,
 } from "./adapters/claid";
+
+export * from "./adapters/tavily";

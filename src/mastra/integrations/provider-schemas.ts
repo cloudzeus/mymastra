@@ -18,6 +18,89 @@ export type ProviderConnectionSchema = {
 
 /*
  * ============================================================
+ * Tavily Search
+ *
+ * Verified official API:
+ * - base URL: https://api.tavily.com
+ * - POST /search performs web search
+ * - Authorization uses Bearer API key
+ * - /extract may later be used for page extraction
+ *
+ * API key is tenant-secret material.
+ * ============================================================
+ */
+
+const tavilyConfigSchema =
+  z
+    .object({
+      baseUrl:
+        z
+          .string()
+          .url()
+          .default(
+            "https://api.tavily.com",
+          ),
+
+      defaultSearchDepth:
+        z
+          .enum([
+            "basic",
+            "advanced",
+            "fast",
+            "ultra-fast",
+          ])
+          .default(
+            "basic",
+          ),
+
+      defaultTopic:
+        z
+          .enum([
+            "general",
+            "news",
+            "finance",
+          ])
+          .default(
+            "general",
+          ),
+
+      defaultCountry:
+        z
+          .string()
+          .min(2)
+          .optional(),
+
+      pricePerCredit:
+        z
+          .number()
+          .nonnegative()
+          .optional(),
+
+      currency:
+        z
+          .string()
+          .regex(/^[A-Z]{3}$/)
+          .optional()
+          .default(
+            "USD",
+          ),
+    })
+    .strict();
+
+
+const tavilySecretSchema =
+  z
+    .object({
+      apiKey:
+        z
+          .string()
+          .min(1),
+    })
+    .strict();
+
+
+/*
+ * ============================================================
  * MapTiler
  *
  * Verified:
@@ -252,6 +335,14 @@ export const providerConnectionSchemas:
     ProviderConnectionSchema
   > =
 {
+  "research.tavily": {
+    configSchema:
+      tavilyConfigSchema,
+
+    secretSchema:
+      tavilySecretSchema,
+  },
+
   "ai.deepseek": {
     configSchema:
       deepSeekConfigSchema,
