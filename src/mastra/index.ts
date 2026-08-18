@@ -5,6 +5,7 @@ import { MastraEditor } from "@mastra/editor";
 import { analystAgent } from "./agents/analyst";
 import { developerAgent } from "./agents/developer";
 import { researchCompetitorAgent } from "./agents/research-competitor";
+import { uiUxDesignerAgent } from "./agents/ui-ux-designer";
 
 
 if (!process.env.DATABASE_URL) {
@@ -23,5 +24,6 @@ export const mastra = new Mastra({
     analystAgent,
     developerAgent,
     researchCompetitorAgent,
+    uiUxDesignerAgent,
   },
 });
