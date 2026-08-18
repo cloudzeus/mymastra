@@ -18,6 +18,10 @@ import {
   createAgentAccountingDefaults,
 } from "../accounting/agent-accounting";
 
+import {
+  clearResearchExecutionBudget,
+} from "../research/execution-budget";
+
 
 const researchAccountingDefaults =
   createAgentAccountingDefaults({
@@ -31,6 +35,9 @@ const researchAccountingDefaults =
       "openrouter",
     model:
       "deepseek/deepseek-v4-flash",
+
+    onRunFinished:
+      clearResearchExecutionBudget,
   });
 
 
@@ -346,6 +353,28 @@ researchFetchUrl:
 Research iteratively until there is sufficient evidence for a useful
 analysis. Do not keep researching merely to fill every possible gap.
 
+The runtime enforces a finite research budget.
+
+Default limits are:
+
+- at most 4 web searches per run;
+- at most 2 advanced searches per run;
+- at most 2 direct URL fetches per run;
+- search results are intentionally compact;
+- direct page fetches are intentionally size-limited.
+
+Treat these as hard execution limits, not targets.
+
+Do not attempt to use the full budget when sufficient evidence already
+exists.
+
+If a tool reports that a research budget is exhausted:
+
+- do not retry the blocked operation;
+- do not try equivalent queries merely to bypass the limit;
+- immediately synthesize the best answer from evidence already gathered;
+- identify any remaining evidence gap as unresolved.
+
 Prioritize in this order:
 
 1. official customer website;
@@ -361,6 +390,80 @@ fully extracted:
 - use search-index evidence and other accessible official pages;
 - record the limitation under unresolved questions;
 - continue the analysis with the evidence that is available.
+
+SCOPE AND SYNTHESIS DISCIPLINE:
+
+The requested assignment scope controls the depth of the final answer.
+A skill template is methodology guidance; it does not automatically
+require a full report.
+
+If the assignment requests a quick comparison, pros/cons, a small
+number of differences, or another narrow assessment:
+
+- answer only that requested scope;
+- do not expand into a full ResearchPackage;
+- do not create sections merely because a skill template contains them;
+- prefer concise evidence-backed synthesis;
+- stop once the requested decision-support information is complete.
+
+When a specific customer is identified in the assignment or trusted
+runtime/project context, the final analysis MUST include actionable
+recommendations for that selected customer.
+
+Customer recommendations must:
+
+- be based on retrieved competitor/customer evidence;
+- explain what the customer should keep, improve, add, avoid or
+  differentiate;
+- distinguish evidence from analysis;
+- be specific enough for downstream Proposal, UX, Copy, SEO or
+  commercial agents to act on;
+- prioritize the highest-value actions rather than producing a generic
+  list.
+
+Label recommendation logic as DERIVED when it is an analytical
+conclusion rather than a directly verified fact.
+
+Do not invent customer characteristics that were not supplied or
+retrieved. If no selected customer or customer context is available,
+do not pretend recommendations are personalized; explicitly state that
+customer-specific recommendations require customer context.
+
+For narrow comparison assignments, prefer this final structure:
+
+1. Key findings
+2. Pros / Cons
+3. Important competitive differences
+4. Recommendations for the selected customer
+5. Unresolved evidence gaps, only when material
+
+OUTPUT BUDGET AND RESPONSE EFFICIENCY:
+
+Match response length to the research depth.
+
+QUICK assignments:
+- target approximately 600-900 words;
+- use no more than 3-5 prioritized customer recommendations;
+- summarize evidence instead of reproducing exhaustive evidence inventories;
+- avoid repeating the same fact in tables, prose and summary sections;
+- omit non-material unresolved questions;
+- do not add a second executive summary after already providing conclusions.
+
+STANDARD assignments:
+- target approximately 1200-1800 words;
+- include only dimensions that materially affect the decision;
+- prioritize synthesis and recommendations over exhaustive source restatement.
+
+DEEP assignments:
+- may exceed STANDARD length only when explicitly requested or required by
+  the assignment;
+- detail must still add decision value.
+
+For QUICK and STANDARD work, concise decision support is preferred over
+completeness for its own sake.
+
+Do not spend additional reasoning or output merely to restate already
+established evidence.
 
 MANDATORY COMPLETION RULE:
 
@@ -409,7 +512,13 @@ export const researchCompetitorAgent =
 
     defaultOptions: async (context) => ({
       maxSteps:
-        30,
+        8,
+
+      modelSettings: {
+        maxOutputTokens:
+          6144,
+      },
+
       ...await researchAccountingDefaults(
         context,
       ),

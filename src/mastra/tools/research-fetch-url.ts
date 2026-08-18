@@ -18,6 +18,15 @@ import {
   z,
 } from "zod";
 
+import {
+  consumeFetchBudget,
+  RESEARCH_EXECUTION_LIMITS,
+} from "../research/execution-budget";
+
+
+const INTERNAL_AI_RUN_ID_KEY =
+  "__dgsmart.aiAccounting.runId";
+
 
 const MAX_RESPONSE_BYTES =
   2 * 1024 * 1024;
@@ -576,21 +585,50 @@ Evidence rules:
               .number()
               .int()
               .min(1000)
-              .max(100000)
+              .max(
+                RESEARCH_EXECUTION_LIMITS
+                  .fetchMaxCharacters,
+              )
               .optional()
               .default(
-                30000,
+                RESEARCH_EXECUTION_LIMITS
+                  .fetchMaxCharacters,
               ),
         })
         .strict(),
 
     execute:
-      async ({
-        url:
-          rawUrl,
-        timeoutMs,
-        maxCharacters,
-      }) => {
+      async (
+        {
+          url:
+            rawUrl,
+          timeoutMs,
+          maxCharacters,
+        },
+        context,
+      ) => {
+        const internalRunIdValue =
+          context.requestContext?.get(
+            INTERNAL_AI_RUN_ID_KEY,
+          );
+
+        const internalRunId =
+          typeof internalRunIdValue ===
+            "string" &&
+          internalRunIdValue.trim()
+            ? internalRunIdValue.trim()
+            : undefined;
+
+        if (!internalRunId) {
+          throw new Error(
+            "researchFetchUrl requires internal AI runId in runtime requestContext",
+          );
+        }
+
+        consumeFetchBudget(
+          internalRunId,
+        );
+
         const url =
           await assertPublicUrl(
             rawUrl,

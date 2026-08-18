@@ -15,6 +15,9 @@ export type AgentAccountingConfig = {
   workflowType: string;
   provider: string;
   model: string;
+  onRunFinished?: (
+    runId: string,
+  ) => void | Promise<void>;
 };
 
 function getContextString(
@@ -167,12 +170,19 @@ export function createAgentAccountingDefaults(
         const providerRunId =
           event.steps.at(-1)?.response?.id;
 
-        await finishAiRun({
-          runId,
-          usage: event.totalUsage,
-          error: event.error,
-          providerRunId,
-        });
+        try {
+          await finishAiRun({
+            runId,
+            usage: event.totalUsage,
+            error: event.error,
+            providerRunId,
+          });
+        } finally {
+          await config
+            .onRunFinished?.(
+              runId,
+            );
+        }
       },
     };
   };

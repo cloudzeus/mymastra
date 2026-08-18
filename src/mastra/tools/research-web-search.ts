@@ -18,9 +18,38 @@ import {
   recordExternalCost,
 } from "../accounting/ai-run-recorder";
 
+import {
+  consumeWebSearchBudget,
+} from "../research/execution-budget";
+
 
 const INTERNAL_AI_RUN_ID_KEY =
   "__dgsmart.aiAccounting.runId";
+
+
+function compactSearchContent(
+  value: string,
+): string {
+  const MAX_CHARACTERS =
+    1200;
+
+  if (
+    value.length <=
+    MAX_CHARACTERS
+  ) {
+    return value;
+  }
+
+  return (
+    value
+      .slice(
+        0,
+        MAX_CHARACTERS,
+      )
+      .trimEnd() +
+    "…"
+  );
+}
 
 
 function createSourceId(
@@ -140,27 +169,12 @@ It does not write files, modify projects or access ERP systems.
               .number()
               .int()
               .min(1)
-              .max(20)
+              .max(5)
               .optional()
               .default(
-                10,
+                5,
               ),
 
-          includeAnswer:
-            z
-              .boolean()
-              .optional()
-              .default(
-                false,
-              ),
-
-          includeRawContent:
-            z
-              .boolean()
-              .optional()
-              .default(
-                false,
-              ),
         })
         .strict(),
 
@@ -174,8 +188,6 @@ It does not write files, modify projects or access ERP systems.
           topic,
           country,
           maxResults,
-          includeAnswer,
-          includeRawContent,
         },
         context,
       ) => {
@@ -209,6 +221,17 @@ It does not write files, modify projects or access ERP systems.
             ? internalRunIdValue.trim()
             : undefined;
 
+        if (!internalRunId) {
+          throw new Error(
+            "researchWebSearch requires internal AI runId in runtime requestContext",
+          );
+        }
+
+        consumeWebSearchBudget(
+          internalRunId,
+          searchDepth,
+        );
+
         const result =
           await tavilySearch({
             tenantId,
@@ -227,9 +250,11 @@ It does not write files, modify projects or access ERP systems.
 
             maxResults,
 
-            includeAnswer,
+            includeAnswer:
+              false,
 
-            includeRawContent,
+            includeRawContent:
+              false,
           });
 
         if (
@@ -287,9 +312,11 @@ It does not write files, modify projects or access ERP systems.
 
               maxResults,
 
-              includeAnswer,
+              includeAnswer:
+                false,
 
-              includeRawContent,
+              includeRawContent:
+                false,
 
               responseTime:
                 result.responseTime ??
@@ -327,13 +354,14 @@ It does not write files, modify projects or access ERP systems.
                   item.url,
 
                 content:
-                  item.content,
+                  compactSearchContent(
+                    item.content,
+                  ),
 
                 score:
                   item.score,
 
                 rawContent:
-                  item.rawContent ??
                   null,
               }),
             ),
