@@ -8,7 +8,7 @@ export type SpecialistRole =
   | "UI_UX_DESIGNER"
   | "COPYWRITER"
   | "SEARCH_VISIBILITY"
-  | "VIDEO_CONTENT_CREATOR"
+  | "CONTENT_CREATOR"
   | "PROPOSAL_SOLUTIONS_CONSULTANT";
 
 
@@ -24,7 +24,7 @@ export type SpecialistArtifactType =
   | "UX_DESIGN_PACKAGE"
   | "COPY_PACKAGE"
   | "SEARCH_VISIBILITY_PACKAGE"
-  | "VIDEO_CONTENT_PACKAGE"
+  | "CREATIVE_CONTENT_PACKAGE"
   | "CUSTOMER_PROPOSAL_PACKAGE";
 
 
@@ -248,6 +248,306 @@ export type ResearchPackage = {
 };
 
 
+
+export type CustomerAssetType =
+  | "IMAGE"
+  | "VIDEO"
+  | "AUDIO"
+  | "LOGO"
+  | "BRAND_GUIDELINE"
+  | "DESIGN_SYSTEM"
+  | "PRODUCT_MEDIA"
+  | "MOODBOARD"
+  | "DOCUMENT"
+  | "PRESENTATION"
+  | "OTHER";
+
+
+export type CustomerAssetScope =
+  | "CUSTOMER"
+  | "PROJECT";
+
+
+export type CustomerAssetSource =
+  | "UPLOADED"
+  | "IMPORTED"
+  | "GENERATED"
+  | "EDITED";
+
+
+export type ReusableCustomerAssetReference = {
+  assetId: string;
+
+  customerId: string;
+
+  projectId?: string;
+
+  scope:
+    CustomerAssetScope;
+
+  type:
+    CustomerAssetType;
+
+  title?: string;
+
+  description?: string;
+
+  tags: string[];
+
+  reusableAcrossProjects: boolean;
+
+  source:
+    CustomerAssetSource;
+
+  derivedFromAssetIds: string[];
+};
+
+
+export type MediaReferenceRole =
+  | "SUBJECT"
+  | "PRODUCT"
+  | "PERSON"
+  | "LOCATION"
+  | "STYLE"
+  | "COMPOSITION"
+  | "COLOR_PALETTE"
+  | "BRAND"
+  | "LOGO"
+  | "BACKGROUND"
+  | "LIGHTING"
+  | "POSE"
+  | "WARDROBE"
+  | "FIRST_FRAME"
+  | "LAST_FRAME"
+  | "OTHER";
+
+
+export type MediaReferencePriority =
+  | "REQUIRED"
+  | "STRONG"
+  | "OPTIONAL";
+
+
+export type MediaReferenceAsset = {
+  assetId: string;
+
+  role:
+    MediaReferenceRole;
+
+  priority:
+    MediaReferencePriority;
+
+  instructions?: string;
+
+  preservationRequirements: string[];
+};
+
+
+export type BrandDefinitionStatus =
+  | "PROVIDED"
+  | "VERIFIED"
+  | "PROPOSED"
+  | "PARTIAL";
+
+
+export type BrandIdentityDefinition = {
+  status:
+    BrandDefinitionStatus;
+
+  brandName: string;
+
+  positioning?: string;
+
+  personality: string[];
+
+  toneOfVoice: string[];
+
+  logoAssetIds: string[];
+
+  colors: string[];
+
+  typography: string[];
+
+  iconography: string[];
+
+  photographyStyle: string[];
+
+  illustrationStyle: string[];
+
+  imageryDirection: string[];
+
+  motionDirection: string[];
+
+  spacingPrinciples: string[];
+
+  shapeLanguage: string[];
+
+  dos: string[];
+
+  donts: string[];
+
+  sourceAssetIds: string[];
+};
+
+
+export type DesignSystemDefinition = {
+  status:
+    BrandDefinitionStatus;
+
+  primitiveTokens: string[];
+
+  semanticTokens: string[];
+
+  componentTokens: string[];
+
+  components: string[];
+
+  patterns: string[];
+
+  templates: string[];
+
+  responsiveRules: string[];
+
+  accessibilityRules: string[];
+
+  motionRules: string[];
+
+  themeRules: string[];
+
+  sourceAssetIds: string[];
+};
+
+
+export type MediaQualityTier =
+  | "DRAFT"
+  | "STANDARD"
+  | "PREMIUM";
+
+
+export type CreativeAssetType =
+  | "IMAGE"
+  | "VIDEO";
+
+
+export type CreativePlacement =
+  | "WEBSITE_HERO"
+  | "WEBSITE_BANNER"
+  | "VIDEO_HERO"
+  | "VIDEO_BANNER"
+  | "DISPLAY_BANNER"
+  | "SOCIAL_POST"
+  | "SOCIAL_STORY"
+  | "SOCIAL_REEL"
+  | "EMAIL_BANNER"
+  | "THUMBNAIL"
+  | "PRODUCT_MEDIA"
+  | "AD"
+  | "OTHER";
+
+
+export type MediaGenerationPolicy = {
+  maxImageVariantsPerRequest: number;
+
+  maxVideoVariantsPerRequest: number;
+
+  maxVideoDurationSeconds: number;
+
+  maxCostPerImageUsd: number;
+
+  maxCostPerVideoUsd: number;
+
+  autonomousSpendLimitUsd: number;
+
+  approvalRequiredAboveUsd: number;
+
+  projectBudgetUsd?: number;
+
+  tenantDailyBudgetUsd?: number;
+
+  tenantMonthlyBudgetUsd?: number;
+};
+
+
+export type MediaModelSelectionRequest = {
+  assetType:
+    CreativeAssetType;
+
+  qualityTier:
+    MediaQualityTier;
+
+  requiresReferenceImages: boolean;
+
+  requiresImageEditing: boolean;
+
+  requiresAudio: boolean;
+
+  requiresFirstLastFrame: boolean;
+
+  preferredAspectRatio?: string;
+
+  maxCostUsd: number;
+
+  maxExpectedLatencySeconds?: number;
+};
+
+
+export type MediaGenerationRequest = {
+  requestId: string;
+
+  specificationId: string;
+
+  assetType:
+    CreativeAssetType;
+
+  qualityTier:
+    MediaQualityTier;
+
+  variants: number;
+
+  referenceAssets:
+    MediaReferenceAsset[];
+
+  requestedDurationSeconds?: number;
+
+  requiresAudio?: boolean;
+
+  maxCostUsd: number;
+
+  humanApprovalId?: string;
+};
+
+
+export type GeneratedAssetStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "AVAILABLE"
+  | "FAILED";
+
+
+export type GeneratedAssetReference = {
+  assetId: string;
+
+  assetType:
+    CreativeAssetType;
+
+  status:
+    GeneratedAssetStatus;
+
+  qualityTier:
+    MediaQualityTier;
+
+  provider?: string;
+
+  model?: string;
+
+  derivedFromAssetIds: string[];
+
+  estimatedCostUsd?: number;
+
+  actualCostUsd?: number;
+};
+
+
 export type UXPageSpecification = {
   id: string;
 
@@ -291,6 +591,7 @@ export type UXComponentSpecification = {
 
 
 export type UXDesignPackage = {
+
   designObjectives: string[];
 
   targetAudiences: string[];
@@ -298,6 +599,15 @@ export type UXDesignPackage = {
   informationArchitecture: string[];
 
   userFlows: string[];
+
+  brandIdentity?:
+    BrandIdentityDefinition;
+
+  designSystem?:
+    DesignSystemDefinition;
+
+  customerAssets:
+    ReusableCustomerAssetReference[];
 
   pages:
     UXPageSpecification[];
@@ -307,11 +617,21 @@ export type UXDesignPackage = {
 
   designSystemRequirements: string[];
 
+  imageCreativeRequirements:
+    ImageCreativeSpecification[];
+
+  videoCreativeRequirements:
+    VideoCreativeSpecification[];
+
+  mediaGenerationPolicy?:
+    MediaGenerationPolicy;
+
   responsiveStrategy: string[];
 
   accessibilityRequirements: string[];
 
   developerHandoffNotes: string[];
+
 };
 
 
@@ -489,46 +809,187 @@ export type VideoVariant = {
 };
 
 
-export type VideoContentPackage = {
+
+export type ImageCreativeSpecification = {
+  id: string;
+
+  purpose: string;
+
+  placement:
+    CreativePlacement;
+
+  aspectRatio?: string;
+
+  width?: number;
+
+  height?: number;
+
+  visualDirection: string;
+
+  subject?: string;
+
+  composition?: string;
+
+  background?: string;
+
+  lighting?: string;
+
+  style: string[];
+
+  onImageText: string[];
+
+  cta?: string;
+
+  brandRequirements: string[];
+
+  negativeConstraints: string[];
+
+  responsiveVariants: string[];
+
+  referenceAssets:
+    MediaReferenceAsset[];
+
+  generationPrompt?: string;
+
+  generatedAssets:
+    GeneratedAssetReference[];
+};
+
+
+export type VideoCreativeSpecification = {
+  id: string;
+
+  purpose: string;
+
+  placement:
+    CreativePlacement;
+
+  platform?:
+    VideoPlatform;
+
+  format:
+    VideoFormat;
+
+  durationSeconds?: number;
+
+  aspectRatio?: string;
+
+  concept: string;
+
+  hook?: string;
+
+  script?: string;
+
+  scenes:
+    VideoScene[];
+
+  visualDirection: string[];
+
+  motionDirection: string[];
+
+  voiceDirection: string[];
+
+  musicSoundDirection: string[];
+
+  loopRequired?: boolean;
+
+  mutedPlaybackCompatible?: boolean;
+
+  referenceAssets:
+    MediaReferenceAsset[];
+
+  generationPrompt?: string;
+
+  generatedAssets:
+    GeneratedAssetReference[];
+};
+
+
+export type CreativeVariant = {
+  id: string;
+
+  sourceCreativeId: string;
+
+  placement:
+    CreativePlacement;
+
+  aspectRatio?: string;
+
+  width?: number;
+
+  height?: number;
+
+  durationSeconds?: number;
+
+  adaptationNotes: string[];
+
+  generatedAssetId?: string;
+};
+
+
+export type CreativeContentPackage = {
+
   campaignObjective: string;
 
   targetAudience: string[];
 
-  primaryPlatform:
-    VideoPlatform;
+  brandIdentity?:
+    BrandIdentityDefinition;
 
-  primaryFormat:
-    VideoFormat;
+  designSystem?:
+    DesignSystemDefinition;
+
+  customerAssets:
+    ReusableCustomerAssetReference[];
 
   concept: string;
 
-  hook: string;
+  visualDirection: string[];
 
-  script: string;
+  assetRequirements: string[];
+
+  imageCreatives:
+    ImageCreativeSpecification[];
+
+  videoCreatives:
+    VideoCreativeSpecification[];
+
+  creativeVariants:
+    CreativeVariant[];
+
+  mediaGenerationPolicy?:
+    MediaGenerationPolicy;
+
+  primaryPlatform?:
+    VideoPlatform;
+
+  primaryFormat?:
+    VideoFormat;
+
+  hook?: string;
+
+  script?: string;
 
   scenes:
     VideoScene[];
 
   shotList: string[];
 
-  visualDirection: string[];
-
   voiceDirection: string[];
 
   musicSoundDirection: string[];
-
-  assetRequirements: string[];
 
   generationPrompts: string[];
 
   thumbnailConcepts: string[];
 
-  variants:
+  videoVariants:
     VideoVariant[];
 
   distributionNotes: string[];
 
   measurementRecommendations: string[];
+
 };
 
 
@@ -642,9 +1103,9 @@ export type SearchVisibilityArtifact =
   >;
 
 
-export type VideoContentArtifact =
+export type CreativeContentArtifact =
   SpecialistArtifactEnvelope<
-    VideoContentPackage
+    CreativeContentPackage
   >;
 
 

@@ -1,5 +1,9 @@
 import type {
+  CreativeContentArtifact,
   CustomerProposalArtifact,
+  MediaGenerationPolicy,
+  MediaReferenceAsset,
+  UXDesignArtifact,
   SpecialistArtifactEnvelope,
   SpecialistArtifactType,
   SpecialistRole,
@@ -32,8 +36,8 @@ const EXPECTED_ARTIFACT_TYPE_BY_ROLE:
     SEARCH_VISIBILITY:
       "SEARCH_VISIBILITY_PACKAGE",
 
-    VIDEO_CONTENT_CREATOR:
-      "VIDEO_CONTENT_PACKAGE",
+    CONTENT_CREATOR:
+      "CREATIVE_CONTENT_PACKAGE",
 
     PROPOSAL_SOLUTIONS_CONSULTANT:
       "CUSTOMER_PROPOSAL_PACKAGE",
@@ -311,6 +315,614 @@ export function validateSpecialistArtifact(
 
     errors,
 
+    warnings,
+  };
+}
+
+
+
+function validateMediaReferences(
+  references:
+    MediaReferenceAsset[],
+  context:
+    string,
+  errors:
+    string[],
+): void {
+  if (
+    !Array.isArray(
+      references,
+    )
+  ) {
+    errors.push(
+      `${context}.referenceAssets must be an array`,
+    );
+
+    return;
+  }
+
+
+  for (
+    const reference
+    of references
+  ) {
+    if (
+      !hasText(
+        reference.assetId,
+      )
+    ) {
+      errors.push(
+        `${context} contains a reference asset without assetId`,
+      );
+    }
+
+
+    if (
+      !Array.isArray(
+        reference.preservationRequirements,
+      )
+    ) {
+      errors.push(
+        `${context} reference ${reference.assetId || "<unknown>"} preservationRequirements must be an array`,
+      );
+    }
+  }
+}
+
+
+function validateNonNegativeNumber(
+  value:
+    number | undefined,
+  field:
+    string,
+  errors:
+    string[],
+): void {
+  if (
+    value ===
+      undefined
+  ) {
+    return;
+  }
+
+
+  if (
+    typeof value !==
+      "number" ||
+    !Number.isFinite(
+      value,
+    ) ||
+    value <
+      0
+  ) {
+    errors.push(
+      `${field} must be a non-negative finite number`,
+    );
+  }
+}
+
+
+function validatePositiveInteger(
+  value:
+    number,
+  field:
+    string,
+  errors:
+    string[],
+): void {
+  if (
+    !Number.isInteger(
+      value,
+    ) ||
+    value <
+      1
+  ) {
+    errors.push(
+      `${field} must be a positive integer`,
+    );
+  }
+}
+
+
+function validateMediaGenerationPolicy(
+  policy:
+    MediaGenerationPolicy | undefined,
+  context:
+    string,
+  errors:
+    string[],
+): void {
+  if (
+    policy ===
+      undefined
+  ) {
+    return;
+  }
+
+
+  validatePositiveInteger(
+    policy.maxImageVariantsPerRequest,
+    `${context}.maxImageVariantsPerRequest`,
+    errors,
+  );
+
+  validatePositiveInteger(
+    policy.maxVideoVariantsPerRequest,
+    `${context}.maxVideoVariantsPerRequest`,
+    errors,
+  );
+
+
+  if (
+    typeof policy.maxVideoDurationSeconds !==
+      "number" ||
+    !Number.isFinite(
+      policy.maxVideoDurationSeconds,
+    ) ||
+    policy.maxVideoDurationSeconds <=
+      0
+  ) {
+    errors.push(
+      `${context}.maxVideoDurationSeconds must be a positive finite number`,
+    );
+  }
+
+
+  validateNonNegativeNumber(
+    policy.maxCostPerImageUsd,
+    `${context}.maxCostPerImageUsd`,
+    errors,
+  );
+
+  validateNonNegativeNumber(
+    policy.maxCostPerVideoUsd,
+    `${context}.maxCostPerVideoUsd`,
+    errors,
+  );
+
+  validateNonNegativeNumber(
+    policy.autonomousSpendLimitUsd,
+    `${context}.autonomousSpendLimitUsd`,
+    errors,
+  );
+
+  validateNonNegativeNumber(
+    policy.approvalRequiredAboveUsd,
+    `${context}.approvalRequiredAboveUsd`,
+    errors,
+  );
+
+  validateNonNegativeNumber(
+    policy.projectBudgetUsd,
+    `${context}.projectBudgetUsd`,
+    errors,
+  );
+
+  validateNonNegativeNumber(
+    policy.tenantDailyBudgetUsd,
+    `${context}.tenantDailyBudgetUsd`,
+    errors,
+  );
+
+  validateNonNegativeNumber(
+    policy.tenantMonthlyBudgetUsd,
+    `${context}.tenantMonthlyBudgetUsd`,
+    errors,
+  );
+
+
+  if (
+    Number.isFinite(
+      policy.autonomousSpendLimitUsd,
+    ) &&
+    Number.isFinite(
+      policy.approvalRequiredAboveUsd,
+    ) &&
+    policy.approvalRequiredAboveUsd <
+      policy.autonomousSpendLimitUsd
+  ) {
+    errors.push(
+      `${context}.approvalRequiredAboveUsd must be greater than or equal to autonomousSpendLimitUsd`,
+    );
+  }
+}
+
+
+export function validateUXDesignArtifact(
+  artifact:
+    UXDesignArtifact,
+): SpecialistArtifactValidation {
+  const base =
+    validateSpecialistArtifact(
+      artifact,
+    );
+
+  const errors =
+    [
+      ...base.errors,
+    ];
+
+  const warnings =
+    [
+      ...base.warnings,
+    ];
+
+
+  if (
+    artifact.role !==
+      "UI_UX_DESIGNER"
+  ) {
+    errors.push(
+      "UX design artifact must use UI_UX_DESIGNER role",
+    );
+  }
+
+
+  if (
+    artifact.artifactType !==
+      "UX_DESIGN_PACKAGE"
+  ) {
+    errors.push(
+      "UX design artifact must use UX_DESIGN_PACKAGE type",
+    );
+  }
+
+
+  const ux =
+    artifact.payload;
+
+
+  if (
+    !Array.isArray(
+      ux.customerAssets,
+    )
+  ) {
+    errors.push(
+      "UXDesignPackage.customerAssets must be an array",
+    );
+  } else {
+    for (
+      const asset
+      of ux.customerAssets
+    ) {
+      if (
+        !hasText(
+          asset.assetId,
+        )
+      ) {
+        errors.push(
+          "UXDesignPackage.customerAssets contains an asset without assetId",
+        );
+      }
+
+
+      if (
+        asset.scope ===
+          "CUSTOMER" &&
+        asset.reusableAcrossProjects ===
+          false
+      ) {
+        warnings.push(
+          `Customer-scoped asset ${asset.assetId || "<unknown>"} is not marked reusableAcrossProjects`,
+        );
+      }
+    }
+  }
+
+
+  for (
+    const page
+    of ux.pages
+  ) {
+    if (
+      !hasText(
+        page.id,
+      )
+    ) {
+      errors.push(
+        "UXDesignPackage.pages contains a page without id",
+      );
+    }
+  }
+
+
+  for (
+    const component
+    of ux.components
+  ) {
+    if (
+      !hasText(
+        component.id,
+      )
+    ) {
+      errors.push(
+        "UXDesignPackage.components contains a component without id",
+      );
+    }
+  }
+
+
+  for (
+    const image
+    of ux.imageCreativeRequirements
+  ) {
+    if (
+      !hasText(
+        image.id,
+      )
+    ) {
+      errors.push(
+        "UXDesignPackage.imageCreativeRequirements contains an item without id",
+      );
+    }
+
+
+    validateMediaReferences(
+      image.referenceAssets,
+      `UX image creative ${image.id || "<unknown>"}`,
+      errors,
+    );
+  }
+
+
+  for (
+    const video
+    of ux.videoCreativeRequirements
+  ) {
+    if (
+      !hasText(
+        video.id,
+      )
+    ) {
+      errors.push(
+        "UXDesignPackage.videoCreativeRequirements contains an item without id",
+      );
+    }
+
+
+    if (
+      video.durationSeconds !==
+        undefined &&
+      (
+        !Number.isFinite(
+          video.durationSeconds,
+        ) ||
+        video.durationSeconds <=
+          0
+      )
+    ) {
+      errors.push(
+        `UX video creative ${video.id || "<unknown>"} durationSeconds must be positive when provided`,
+      );
+    }
+
+
+    validateMediaReferences(
+      video.referenceAssets,
+      `UX video creative ${video.id || "<unknown>"}`,
+      errors,
+    );
+  }
+
+
+  validateMediaGenerationPolicy(
+    ux.mediaGenerationPolicy,
+    "UXDesignPackage.mediaGenerationPolicy",
+    errors,
+  );
+
+
+  return {
+    valid:
+      errors.length ===
+      0,
+    errors,
+    warnings,
+  };
+}
+
+
+export function validateCreativeContentArtifact(
+  artifact:
+    CreativeContentArtifact,
+): SpecialistArtifactValidation {
+  const base =
+    validateSpecialistArtifact(
+      artifact,
+    );
+
+  const errors =
+    [
+      ...base.errors,
+    ];
+
+  const warnings =
+    [
+      ...base.warnings,
+    ];
+
+
+  if (
+    artifact.role !==
+      "CONTENT_CREATOR"
+  ) {
+    errors.push(
+      "Creative content artifact must use CONTENT_CREATOR role",
+    );
+  }
+
+
+  if (
+    artifact.artifactType !==
+      "CREATIVE_CONTENT_PACKAGE"
+  ) {
+    errors.push(
+      "Creative content artifact must use CREATIVE_CONTENT_PACKAGE type",
+    );
+  }
+
+
+  const creative =
+    artifact.payload;
+
+
+  if (
+    !Array.isArray(
+      creative.customerAssets,
+    )
+  ) {
+    errors.push(
+      "CreativeContentPackage.customerAssets must be an array",
+    );
+  } else {
+    for (
+      const asset
+      of creative.customerAssets
+    ) {
+      if (
+        !hasText(
+          asset.assetId,
+        )
+      ) {
+        errors.push(
+          "CreativeContentPackage.customerAssets contains an asset without assetId",
+        );
+      }
+
+
+      if (
+        asset.scope ===
+          "CUSTOMER" &&
+        asset.reusableAcrossProjects ===
+          false
+      ) {
+        warnings.push(
+          `Customer-scoped asset ${asset.assetId || "<unknown>"} is not marked reusableAcrossProjects`,
+        );
+      }
+    }
+  }
+
+
+  for (
+    const image
+    of creative.imageCreatives
+  ) {
+    if (
+      !hasText(
+        image.id,
+      )
+    ) {
+      errors.push(
+        "CreativeContentPackage.imageCreatives contains an item without id",
+      );
+    }
+
+
+    validateMediaReferences(
+      image.referenceAssets,
+      `Creative image ${image.id || "<unknown>"}`,
+      errors,
+    );
+  }
+
+
+  for (
+    const video
+    of creative.videoCreatives
+  ) {
+    if (
+      !hasText(
+        video.id,
+      )
+    ) {
+      errors.push(
+        "CreativeContentPackage.videoCreatives contains an item without id",
+      );
+    }
+
+
+    if (
+      video.durationSeconds !==
+        undefined &&
+      (
+        !Number.isFinite(
+          video.durationSeconds,
+        ) ||
+        video.durationSeconds <=
+          0
+      )
+    ) {
+      errors.push(
+        `Creative video ${video.id || "<unknown>"} durationSeconds must be positive when provided`,
+      );
+    }
+
+
+    validateMediaReferences(
+      video.referenceAssets,
+      `Creative video ${video.id || "<unknown>"}`,
+      errors,
+    );
+  }
+
+
+  for (
+    const variant
+    of creative.creativeVariants
+  ) {
+    if (
+      !hasText(
+        variant.id,
+      )
+    ) {
+      errors.push(
+        "CreativeContentPackage.creativeVariants contains a variant without id",
+      );
+    }
+
+
+    if (
+      !hasText(
+        variant.sourceCreativeId,
+      )
+    ) {
+      errors.push(
+        `Creative variant ${variant.id || "<unknown>"} requires sourceCreativeId`,
+      );
+    }
+
+
+    if (
+      variant.durationSeconds !==
+        undefined &&
+      (
+        !Number.isFinite(
+          variant.durationSeconds,
+        ) ||
+        variant.durationSeconds <=
+          0
+      )
+    ) {
+      errors.push(
+        `Creative variant ${variant.id || "<unknown>"} durationSeconds must be positive when provided`,
+      );
+    }
+  }
+
+
+  validateMediaGenerationPolicy(
+    creative.mediaGenerationPolicy,
+    "CreativeContentPackage.mediaGenerationPolicy",
+    errors,
+  );
+
+
+  return {
+    valid:
+      errors.length ===
+      0,
+    errors,
     warnings,
   };
 }

@@ -20,7 +20,7 @@ export type SpecialistSkillRole =
   | "UI_UX_DESIGNER"
   | "COPYWRITER"
   | "SEARCH_VISIBILITY"
-  | "VIDEO_CONTENT_CREATOR"
+  | "CONTENT_CREATOR"
   | "PROPOSAL_SOLUTIONS_CONSULTANT";
 
 
@@ -54,7 +54,7 @@ export const SPECIALIST_ROLE_SKILLS:
       "generative-engine-optimization",
     ],
 
-    VIDEO_CONTENT_CREATOR: [
+    CONTENT_CREATOR: [
       "social",
       "video",
     ],
