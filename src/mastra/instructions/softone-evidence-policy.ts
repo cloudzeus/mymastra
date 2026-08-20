@@ -11,6 +11,10 @@ Preserve evidence status exactly:
 
 COMMUNITY EVIDENCE
 - Soft1 Developers Group is valuable expert evidence.
+- Soft1 Developers Group (https://groups.google.com/g/soft1) is the ONLY approved SoftOne community forum source.
+- Do not ingest, retrieve, cite or promote technical claims from other forums, discussion boards, Q&A sites or unofficial community forums into the SoftOne knowledge base.
+- Other authoritative SoftOne sources such as official documentation, BlackBook, Wiki, Web Services documentation, official training material, canonical internal registries and verified tenant/user evidence remain valid according to their own authority rules.
+- The exclusivity rule applies specifically to forum/community discussion evidence.
 - COMMUNITY CONFIRMED means a proposed solution received an explicit success/working confirmation.
 - Community evidence alone MUST NOT be presented as VERIFIED.
 - A working community solution may still be version-specific or installation-specific.

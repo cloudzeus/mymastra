@@ -1,0 +1,311 @@
+{
+  "formatVersion": 2,
+  "source": "SOFT1_DEVELOPERS_GROUP",
+  "sourceUrl": "https://groups.google.com/g/soft1",
+  "collectedAt": "2026-08-20T03:28:39.922Z",
+  "threads": [
+    {
+      "sourceKey": "gmail-thread:18eec26d51c85cd6",
+      "gmailThreadId": "18eec26d51c85cd6",
+      "subject": "Εγκατάσταση SoftOne On-Premise σε Window Server 2022",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:18eec26d51c85cd6",
+          "body": "/usewebview2"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "CONFIRMED",
+        "rawTechnicalContent": "/usewebview2",
+        "notes": [
+          "Confirmed operational workaround in thread; environment/version-specific."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:190eac0d66e3e102",
+      "gmailThreadId": "190eac0d66e3e102",
+      "subject": "FinTech Piraeus",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:190eac0d66e3e102",
+          "body": "/usewebview2"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "CONFIRMED",
+        "rawTechnicalContent": "/usewebview2",
+        "notes": [
+          "Author explicitly confirms '/usewebview2 παίζει'. Environment-specific."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:190ee79547d94df3",
+      "gmailThreadId": "190ee79547d94df3",
+      "subject": "Εισαγωγή από Excel σε παραστατικό φυσικής απογραφής",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:190ee79547d94df3",
+          "body": "Advice to export a sample row to Excel and derive import layout; not strong enough for automatic semantic evidence."
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "PROSE_REVIEW",
+        "rawTechnicalContent": "",
+        "notes": [
+          "Advice to export a sample row to Excel and derive import layout; not strong enough for automatic semantic evidence."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:1939c857ee6907b7",
+      "gmailThreadId": "1939c857ee6907b7",
+      "subject": "Μεταφορά πεδίων",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:1939c857ee6907b7",
+          "body": "Prose recommendation: export Custom Administration customization to CST and import at customer. Needs prose claim extractor/review."
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "PROSE_REVIEW",
+        "rawTechnicalContent": "",
+        "notes": [
+          "Prose recommendation: export Custom Administration customization to CST and import at customer. Needs prose claim extractor/review."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:195a46845831d729",
+      "gmailThreadId": "195a46845831d729",
+      "subject": "RunSql Τιμη Τελευταίας Αγοράς",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:195a46845831d729",
+          "body": "function ON_ITELINES_MTRL() {\nvar supplier = PURDOC.TRDR;\nvar vmtrl = ITELINES.MTRL;\nITELINES.PRICE = ITELINES.MTRL_ITEM_PRICEW01;\nvar SQLhistoryS1 =\n\"IF EXISTS (SELECT TOP 1 1 FROM MTRTRN XX WHERE XX.MTRL = '\" + vmtrl + \"' AND XX.TRDR = '\" + supplier + \"' AND XX.SOSOURCE = 1251) \" +\n\"SELECT TOP 1 XX.DISCPRC AS DISC FROM MTRTRN XX WHERE XX.MTRL = '\" + vmtrl + \"' AND XX.TRDR = '\" + supplier + \"' AND XX.SOSOURCE = 1251 AND XX.SERIES <> 2066 ORDER BY XX.TRNDATE DESC ELSE SELECT -1 AS DISC\";\nvar dssS1 = X.GETSQLDATASET(SQLhistoryS1, null);\nvar vdiscS1 = dssS1.DISC;\nITELINES.V6 = S1P.Round(vdiscS1,2);\nif (ITELINES.V6 > 0) ITELINES.DISC1PRC = ITELINES.V6;\nX.WARNING('ΠΡΟΣΟΧΗ!');\n}"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "CONFIRMED",
+        "rawTechnicalContent": "function ON_ITELINES_MTRL() {\nvar supplier = PURDOC.TRDR;\nvar vmtrl = ITELINES.MTRL;\nITELINES.PRICE = ITELINES.MTRL_ITEM_PRICEW01;\nvar SQLhistoryS1 =\n\"IF EXISTS (SELECT TOP 1 1 FROM MTRTRN XX WHERE XX.MTRL = '\" + vmtrl + \"' AND XX.TRDR = '\" + supplier + \"' AND XX.SOSOURCE = 1251) \" +\n\"SELECT TOP 1 XX.DISCPRC AS DISC FROM MTRTRN XX WHERE XX.MTRL = '\" + vmtrl + \"' AND XX.TRDR = '\" + supplier + \"' AND XX.SOSOURCE = 1251 AND XX.SERIES <> 2066 ORDER BY XX.TRNDATE DESC ELSE SELECT -1 AS DISC\";\nvar dssS1 = X.GETSQLDATASET(SQLhistoryS1, null);\nvar vdiscS1 = dssS1.DISC;\nITELINES.V6 = S1P.Round(vdiscS1,2);\nif (ITELINES.V6 > 0) ITELINES.DISC1PRC = ITELINES.V6;\nX.WARNING('ΠΡΟΣΟΧΗ!');\n}",
+        "notes": [
+          "Author explicitly says code works for their use case; tenant literals remain scoped/contextual."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:195b7c7b1b07a78e",
+      "gmailThreadId": "195b7c7b1b07a78e",
+      "subject": "ΛΙΣΤΑ ΑΝΑΠΑΡΑΓΓΕΛΙΑΣ",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:195b7c7b1b07a78e",
+          "body": "Business workflow idea rather than atomic SoftOne technical evidence."
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "BUSINESS_IDEA",
+        "rawTechnicalContent": "",
+        "notes": [
+          "Business workflow idea rather than atomic SoftOne technical evidence."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:19956e48625bff81",
+      "gmailThreadId": "19956e48625bff81",
+      "subject": "Scheduler & Javascript",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:19956e48625bff81",
+          "body": "TYPE=BATCH\nJOBNAME=S1ImportCalculateItemCost\nOBJECT=ClientImport,Scriptname:S1ImportCalculateItemCost\nXCOFILENAME=C:\\\\Soft1\\\\AutoItemCost.XCO\nX.TOFILE(\"test.txt\", \"test\");"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.909Z",
+      "normalized": {
+        "classification": "FAILED",
+        "rawTechnicalContent": "TYPE=BATCH\nJOBNAME=S1ImportCalculateItemCost\nOBJECT=ClientImport,Scriptname:S1ImportCalculateItemCost\nXCOFILENAME=C:\\\\Soft1\\\\AutoItemCost.XCO\nX.TOFILE(\"test.txt\", \"test\");",
+        "notes": [
+          "Thread repeatedly says proposed scheduler approaches did not work. Must never auto-accept."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:199e7898c16b7559",
+      "gmailThreadId": "199e7898c16b7559",
+      "subject": "Άνοιγμα σε όλες τις εταιρίες",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:199e7898c16b7559",
+          "body": "Conceptual warning that object writes may affect multiple tables; must not become structural fact without registry/schema evidence."
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "PROSE_REVIEW",
+        "rawTechnicalContent": "",
+        "notes": [
+          "Conceptual warning that object writes may affect multiple tables; must not become structural fact without registry/schema evidence."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:19a3947527477529",
+      "gmailThreadId": "19a3947527477529",
+      "subject": "Τοπικο πεδιο σε φορμα πωλησεων",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:19a3947527477529",
+          "body": "SELECT TOP 1 CODE FROM MTRSUBSTITUTE WHERE MTRL = A.MTRL"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "MENTION",
+        "rawTechnicalContent": "SELECT TOP 1 CODE FROM MTRSUBSTITUTE WHERE MTRL = A.MTRL",
+        "notes": [
+          "Technical recommendation; no explicit success confirmation observed in retrieved message."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:19a4f715bc8d3b03",
+      "gmailThreadId": "19a4f715bc8d3b03",
+      "subject": "DATABASE VIEW",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:19a4f715bc8d3b03",
+          "body": "ds = X.GETSQLDATASET(\n\"SELECT DISTINCT TOP 30 MTRLINES.MTRL,FINDOC.FINDOC,FINDOC.FINCODE FROM MTRLINES JOIN FINDOC ON FINDOC.FINDOC = MTRLINES.FINDOC AND FINDOC.SOSOURCE = 1151 WHERE MTRLINES.MTRL = :1\",\n408119\n);\nwhile (!ds.EOF()) {\nCCCFOROUMTEST.APPEND();\nCCCFOROUMTEST.MTRL = ds.MTRL;\nCCCFOROUMTEST.FINDOC = ds.FINDOC;\nCCCFOROUMTEST.FINCODE = ds.FINCODE;\nCCCFOROUMTEST.POST();\nds.NEXT();\n}\nfunction ON_ITEDOC_INT01(){ myFuncTest(); }\nfunction ON_LOCATE(){ myFuncTest(); }"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.909Z",
+      "normalized": {
+        "classification": "MENTION",
+        "rawTechnicalContent": "ds = X.GETSQLDATASET(\n\"SELECT DISTINCT TOP 30 MTRLINES.MTRL,FINDOC.FINDOC,FINDOC.FINCODE FROM MTRLINES JOIN FINDOC ON FINDOC.FINDOC = MTRLINES.FINDOC AND FINDOC.SOSOURCE = 1151 WHERE MTRLINES.MTRL = :1\",\n408119\n);\nwhile (!ds.EOF()) {\nCCCFOROUMTEST.APPEND();\nCCCFOROUMTEST.MTRL = ds.MTRL;\nCCCFOROUMTEST.FINDOC = ds.FINDOC;\nCCCFOROUMTEST.FINCODE = ds.FINCODE;\nCCCFOROUMTEST.POST();\nds.NEXT();\n}\nfunction ON_ITEDOC_INT01(){ myFuncTest(); }\nfunction ON_LOCATE(){ myFuncTest(); }",
+        "notes": [
+          "Proposed implementation; no explicit confirmation found."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:19a548dc07c4843e",
+      "gmailThreadId": "19a548dc07c4843e",
+      "subject": "Click Button after Show Object Form",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:19a548dc07c4843e",
+          "body": "var aObj = X.CREATEOBJFORM(\"PRCRULEDATA\");\nvar tblPRCRULE = aObj.FindTable('PRCRULE');\nvar tblDATAHEADER = aObj.FindTable('VnRULEDATAHEADER');\ntblPRCRULE.COMPANY=1001;\ntblPRCRULE.SODTYPE=13;\ntblPRCRULE.PRCRULE=400;\naObj.DBLocate(400);\ntblDATAHEADER.DIM1 = 1000;\ntblDATAHEADER.DIM2 = 1001;\n// X.EXEC('BUTTON:1');\n// X.EXEC('BUTTON:VnRULEDATAHEADER.DELETELINES');\naObj.SHOWOBJFORM;\naObj.FREE;"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.909Z",
+      "normalized": {
+        "classification": "MENTION",
+        "rawTechnicalContent": "var aObj = X.CREATEOBJFORM(\"PRCRULEDATA\");\nvar tblPRCRULE = aObj.FindTable('PRCRULE');\nvar tblDATAHEADER = aObj.FindTable('VnRULEDATAHEADER');\ntblPRCRULE.COMPANY=1001;\ntblPRCRULE.SODTYPE=13;\ntblPRCRULE.PRCRULE=400;\naObj.DBLocate(400);\ntblDATAHEADER.DIM1 = 1000;\ntblDATAHEADER.DIM2 = 1001;\n// X.EXEC('BUTTON:1');\n// X.EXEC('BUTTON:VnRULEDATAHEADER.DELETELINES');\naObj.SHOWOBJFORM;\naObj.FREE;",
+        "notes": [
+          "Unresolved question; commented X.EXEC calls must not become evidence."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:19a6cc96e3cc85e3",
+      "gmailThreadId": "19a6cc96e3cc85e3",
+      "subject": "Update πελατών,ειδών μέσω import",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:19a6cc96e3cc85e3",
+          "body": "Prose claim: items/customers can be updated through S1 Import.\nProse claim: first Excel column is used as code in described import recipe.\nClaim 'ITEM.CODE is the main key' must not be promoted without schema/registry verification.\nAttachment TestImport.CST exists but Gmail connector could not read it."
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "PROSE_REVIEW",
+        "rawTechnicalContent": "",
+        "notes": [
+          "Prose claim: items/customers can be updated through S1 Import.",
+          "Prose claim: first Excel column is used as code in described import recipe.",
+          "Claim 'ITEM.CODE is the main key' must not be promoted without schema/registry verification.",
+          "Attachment TestImport.CST exists but Gmail connector could not read it."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:19a98f13a5198cf4",
+      "gmailThreadId": "19a98f13a5198cf4",
+      "subject": "Αποστολή pdf με email",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:19a98f13a5198cf4",
+          "body": "X.EXEC(\"CODE:SysRequest.doSendMail3\", strTo, strCC, strBCC, strsubject, strBodyplain, strBodyHtml, strAttachment, strFromName, vEmailAccount, vEmailAccount);"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.910Z",
+      "normalized": {
+        "classification": "CONFIRMED",
+        "rawTechnicalContent": "X.EXEC(\"CODE:SysRequest.doSendMail3\", strTo, strCC, strBCC, strsubject, strBodyplain, strBodyHtml, strAttachment, strFromName, vEmailAccount, vEmailAccount);",
+        "notes": [
+          "Author says adding email account twice worked in their test. Community-only DERIVED."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:19ac5a89d4493623",
+      "gmailThreadId": "19ac5a89d4493623",
+      "subject": "Πολλαπλή επεξεργασία Παραστατικών",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:19ac5a89d4493623",
+          "body": "function Findocs() {\nvar qFindoc = X.GETSQLDATASET(\"SELECT FINDOC FROM FINDOC WHERE FISCPRD = 2025 AND PERIOD = 1 AND SOSOURCE = 1351 AND SERIES != 790 AND FPRMS = 7090 AND COMPANY = 1004 ORDER BY FINDOC\",null);\nwhile (!qFindoc.EOF) {\nvar curFindoc = qFindoc.FINDOC;\nvar myObj = X.CREATEOBJ('SALDOC');\nmyObj.DBLocate(curFindoc);\nmyObj.Edit;\nmyObj.DBPost;\nqFindoc.Next;\n}\nX.WARNING(\"DONE\");\n}"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.909Z",
+      "normalized": {
+        "classification": "CONFIRMED",
+        "rawTechnicalContent": "function Findocs() {\nvar qFindoc = X.GETSQLDATASET(\"SELECT FINDOC FROM FINDOC WHERE FISCPRD = 2025 AND PERIOD = 1 AND SOSOURCE = 1351 AND SERIES != 790 AND FPRMS = 7090 AND COMPANY = 1004 ORDER BY FINDOC\",null);\nwhile (!qFindoc.EOF) {\nvar curFindoc = qFindoc.FINDOC;\nvar myObj = X.CREATEOBJ('SALDOC');\nmyObj.DBLocate(curFindoc);\nmyObj.Edit;\nmyObj.DBPost;\nqFindoc.Next;\n}\nX.WARNING(\"DONE\");\n}",
+        "notes": [
+          "Self-confirmed by author: 'το έλυσα με το παρακάτω script'."
+        ]
+      }
+    },
+    {
+      "sourceKey": "gmail-thread:19adfa0bae5ceea2",
+      "gmailThreadId": "19adfa0bae5ceea2",
+      "subject": "Database View & Object",
+      "messages": [
+        {
+          "messageId": "legacy-projection:gmail-thread:19adfa0bae5ceea2",
+          "body": "WHERE Company = :CCCQFILTERS.COMPANY"
+        }
+      ],
+      "completeness": "PARTIAL",
+      "lastCollectedAt": "2026-08-20T03:28:39.909Z",
+      "normalized": {
+        "classification": "CONFIRMED",
+        "rawTechnicalContent": "WHERE Company = :CCCQFILTERS.COMPANY",
+        "notes": [
+          "Confirmed by author: 'λειτούργησε κανονικά'."
+        ]
+      }
+    }
+  ]
+}

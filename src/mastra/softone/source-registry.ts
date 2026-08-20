@@ -193,8 +193,11 @@ export const SOFTONE_SOURCE_REGISTRY: readonly SoftOneSourceDefinition[] = [
       "Long-running SoftOne developer community containing implementation discussions, examples, workarounds and version-specific behavior.",
     usagePolicy: [
       "Community posts are supporting evidence by default.",
+      "This is the only approved SoftOne community forum source.",
+      "Do not ingest SoftOne forum evidence from any other forum, discussion board or Q&A community.",
       "Do not promote a forum statement to VERIFIED solely because it appears in the group.",
       "Record author, post URL and date when available.",
+      "Preserve the complete thread and reply chronology whenever available.",
       "Prefer independently verified working code or official documentation for promotion.",
       "Treat old posts as potentially version-specific.",
     ],
