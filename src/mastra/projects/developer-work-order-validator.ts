@@ -15,6 +15,11 @@ import {
 } from "./project-definition-validator";
 
 
+import {
+  deriveSoftOneAccessPolicy,
+} from "./softone-access-policy";
+
+
 function hasText(
   value: string | undefined,
 ): boolean {
@@ -371,22 +376,103 @@ export function validateDeveloperWorkOrder(
   }
 
 
+  const expectedSoftOnePolicy =
+    deriveSoftOneAccessPolicy(
+      definition,
+    );
+
+
+  const actualSoftOnePolicy =
+    policy.softOneAccessPolicy;
+
+
+  const softOnePolicyMatches =
+    (
+      actualSoftOnePolicy.transport ===
+        expectedSoftOnePolicy.transport &&
+
+      actualSoftOnePolicy.directDatabaseAccess ===
+        expectedSoftOnePolicy.directDatabaseAccess &&
+
+      actualSoftOnePolicy.dataExplorerExecution ===
+        expectedSoftOnePolicy.dataExplorerExecution &&
+
+      actualSoftOnePolicy.webServicesReadAllowed ===
+        expectedSoftOnePolicy.webServicesReadAllowed &&
+
+      actualSoftOnePolicy.webServicesUpsertAllowed ===
+        expectedSoftOnePolicy.webServicesUpsertAllowed &&
+
+      actualSoftOnePolicy.sqlScriptGenerationAllowed ===
+        expectedSoftOnePolicy.sqlScriptGenerationAllowed &&
+
+      actualSoftOnePolicy.sqlScriptInstallation ===
+        expectedSoftOnePolicy.sqlScriptInstallation &&
+
+      actualSoftOnePolicy.sqlScriptInvocation ===
+        expectedSoftOnePolicy.sqlScriptInvocation &&
+
+      actualSoftOnePolicy.advancedJavaScriptGenerationAllowed ===
+        expectedSoftOnePolicy.advancedJavaScriptGenerationAllowed &&
+
+      actualSoftOnePolicy.advancedJavaScriptInstallation ===
+        expectedSoftOnePolicy.advancedJavaScriptInstallation &&
+
+      actualSoftOnePolicy.advancedJavaScriptInvocation ===
+        expectedSoftOnePolicy.advancedJavaScriptInvocation
+    );
+
+
   if (
-    policy.directErpDatabaseExecutionAllowed !==
-      false
+    !softOnePolicyMatches
   ) {
     errors.push(
-      "Direct ERP database execution is prohibited",
+      "Developer SoftOne access policy does not match the authoritative ProjectDefinition capabilities",
     );
   }
 
 
   if (
-    policy.softOneWriteExecutionAllowed !==
-      false
+    policy.softOneAccessPolicy
+      .transport !==
+      "WEB_SERVICES_ONLY" ||
+    policy.softOneAccessPolicy
+      .directDatabaseAccess !==
+      "UNAVAILABLE" ||
+    policy.softOneAccessPolicy
+      .dataExplorerExecution !==
+      "ADMIN_MANUAL_ONLY"
   ) {
     errors.push(
-      "SoftOne write execution is prohibited",
+      "Developer SoftOne transport/database safety invariant violated",
+    );
+  }
+
+
+  if (
+    policy.softOneAccessPolicy
+      .sqlScriptInstallation !==
+      "ADMIN_MANUAL_ONLY" ||
+    policy.softOneAccessPolicy
+      .sqlScriptInvocation !==
+      "WEB_SERVICES_ONLY"
+  ) {
+    errors.push(
+      "Developer SoftOne SQL Script lifecycle invariant violated",
+    );
+  }
+
+
+  if (
+    policy.softOneAccessPolicy
+      .advancedJavaScriptInstallation !==
+      "ADMIN_MANUAL_ONLY" ||
+    policy.softOneAccessPolicy
+      .advancedJavaScriptInvocation !==
+      "WEB_SERVICES_ONLY"
+  ) {
+    errors.push(
+      "Developer SoftOne Advanced JavaScript lifecycle invariant violated",
     );
   }
 
