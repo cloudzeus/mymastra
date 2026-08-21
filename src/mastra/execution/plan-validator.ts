@@ -93,14 +93,6 @@ function validateStages(
         );
       }
 
-      if (
-        stage.agentRole ===
-          "DEVELOPER"
-      ) {
-        errors.push(
-          `Stage ${key}: DEVELOPER cannot use SPECIALIST_ARTIFACT executionKind`,
-        );
-      }
     }
 
 
