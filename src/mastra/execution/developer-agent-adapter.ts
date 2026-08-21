@@ -835,6 +835,9 @@ export const developerAgentHandler:
 
         acceptanceCriteria:
           "non-empty string array",
+
+        collectionName:
+          "lowercase kebab-case integration/release collection identifier",
       },
 
       securityPolicy: {
@@ -852,6 +855,12 @@ export const developerAgentHandler:
             definition,
           ),
 
+
+        /*
+         * taskType does not exist yet during proposal generation.
+         * The definitive preflight requirement is attached after
+         * the proposal taskType has been parsed.
+         */
         gitCommitAllowed:
           false,
 
@@ -875,7 +884,7 @@ export const developerAgentHandler:
               "Prepare the DeveloperWorkOrder proposal for this execution stage.",
             "",
             "Return ONLY a JSON object with these properties:",
-            '{ "taskType": "...", "objective": "...", "acceptanceCriteria": ["..."] }',
+            '{ "taskType": "...", "objective": "...", "acceptanceCriteria": ["..."], "collectionName": "lowercase-kebab-case" }',
             "",
             "Do not return filesystem paths.",
             "Do not change or propose security permissions.",
@@ -971,7 +980,7 @@ export const developerAgentHandler:
                 "Do not change the meaning.",
                 "",
                 "The JSON object must contain exactly these logical fields:",
-                '{ "taskType": "...", "objective": "...", "acceptanceCriteria": ["..."] }',
+                '{ "taskType": "...", "objective": "...", "acceptanceCriteria": ["..."], "collectionName": "lowercase-kebab-case" }',
                 "",
                 "Do not execute tools.",
                 "Do not execute code.",
@@ -1031,6 +1040,46 @@ export const developerAgentHandler:
     if (!objective) {
       throw new Error(
         "Developer agent response requires objective",
+      );
+    }
+
+
+    const rawCollectionName =
+      readString(
+        proposal,
+        "collectionName",
+      );
+
+
+    if (!rawCollectionName) {
+      throw new Error(
+        "Developer agent response requires collectionName",
+      );
+    }
+
+
+    const collectionName =
+      rawCollectionName
+        .trim()
+        .toLowerCase()
+        .replace(
+          /[^a-z0-9]+/g,
+          "-",
+        )
+        .replace(
+          /^-+|-+$/g,
+          "",
+        );
+
+
+    if (
+      !collectionName ||
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(
+        collectionName,
+      )
+    ) {
+      throw new Error(
+        "Developer agent response collectionName must resolve to lowercase kebab-case",
       );
     }
 
@@ -1117,6 +1166,129 @@ export const developerAgentHandler:
       requiredArtifacts:
         [],
 
+      artifactContract: {
+        collectionName,
+
+        artifactRoot:
+          `artifacts/${collectionName}`,
+
+        softOne: {
+          required:
+            taskType ===
+              "SOFTONE_INTEGRATION",
+
+          advancedJavaScriptGenerationRequired:
+            taskType ===
+              "SOFTONE_INTEGRATION",
+
+          manualInstallationRequired:
+            true,
+
+          autoInstallationAllowed:
+            false,
+
+          directory:
+            `artifacts/${collectionName}/softone`,
+
+          installationGuidePath:
+            `artifacts/${collectionName}/softone/INSTALLATION.md`,
+
+          readmePath:
+            `artifacts/${collectionName}/softone/README.md`,
+        },
+
+        api: {
+          /*
+           * SOFTONE_INTEGRATION work orders may contain a reusable
+           * HTTP integration surface. For this contract OpenAPI and
+           * Postman are mandatory release artifacts.
+           */
+          required:
+            taskType ===
+              "SOFTONE_INTEGRATION",
+
+          openApiRequired:
+            taskType ===
+              "SOFTONE_INTEGRATION",
+
+          openApiPath:
+            `artifacts/${collectionName}/api/openapi.yaml`,
+
+          postmanRequired:
+            taskType ===
+              "SOFTONE_INTEGRATION",
+
+          postmanPath:
+            `artifacts/${collectionName}/api/postman_collection.json`,
+
+          sourceOfTruth:
+            "OPENAPI",
+        },
+
+        mappings: {
+          required:
+            taskType ===
+              "SOFTONE_INTEGRATION",
+
+          directory:
+            `artifacts/${collectionName}/mappings`,
+
+          softOneMappingPath:
+            `artifacts/${collectionName}/mappings/softone-to-canonical.json`,
+
+          externalClientMappingPath:
+            `artifacts/${collectionName}/mappings/external-client-to-canonical.md`,
+        },
+
+        documentation: {
+          required:
+            true,
+
+          directory:
+            `artifacts/${collectionName}/documentation`,
+
+          apiDocumentationPath:
+            `artifacts/${collectionName}/documentation/API.md`,
+
+          integrationGuidePath:
+            `artifacts/${collectionName}/documentation/INTEGRATION-GUIDE.md`,
+
+          thirdPartyDeveloperGuidePath:
+            `artifacts/${collectionName}/documentation/THIRD-PARTY-DEVELOPER-GUIDE.md`,
+
+          softOneIntegrationGuidePath:
+            `artifacts/${collectionName}/documentation/SOFTONE-INTEGRATION.md`,
+        },
+
+        qa: {
+          handoffRequired:
+            true,
+
+          directory:
+            `artifacts/${collectionName}/qa`,
+
+          handoffManifestPath:
+            `artifacts/${collectionName}/qa/handoff.json`,
+
+          testMatrixPath:
+            `artifacts/${collectionName}/qa/test-matrix.md`,
+
+          qaReportPath:
+            `artifacts/${collectionName}/qa/QA-REPORT.md`,
+
+          documentationValidationRequired:
+            true,
+
+          openApiValidationRequired:
+            taskType ===
+              "SOFTONE_INTEGRATION",
+
+          postmanValidationRequired:
+            taskType ===
+              "SOFTONE_INTEGRATION",
+        },
+      },
+
       acceptanceCriteria,
 
       executionPolicy: {
@@ -1133,6 +1305,10 @@ export const developerAgentHandler:
           deriveSoftOneAccessPolicy(
             definition,
           ),
+
+        softOneLiveMetadataPreflightRequired:
+          taskType ===
+            "SOFTONE_INTEGRATION",
 
         gitCommitAllowed:
           false,

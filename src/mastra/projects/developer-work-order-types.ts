@@ -54,6 +54,42 @@ export type DeveloperRequiredArtifact = {
 };
 
 
+export type SoftOneAccessPolicy = {
+  transport:
+    "WEB_SERVICES_ONLY";
+
+  directDatabaseAccess:
+    "UNAVAILABLE";
+
+  dataExplorerExecution:
+    "ADMIN_MANUAL_ONLY";
+
+  webServicesReadAllowed:
+    boolean;
+
+  webServicesUpsertAllowed:
+    boolean;
+
+  sqlScriptGenerationAllowed:
+    boolean;
+
+  sqlScriptInstallation:
+    "ADMIN_MANUAL_ONLY";
+
+  sqlScriptInvocation:
+    "WEB_SERVICES_ONLY";
+
+  advancedJavaScriptGenerationAllowed:
+    boolean;
+
+  advancedJavaScriptInstallation:
+    "ADMIN_MANUAL_ONLY";
+
+  advancedJavaScriptInvocation:
+    "WEB_SERVICES_ONLY";
+};
+
+
 export type DeveloperExecutionPolicy = {
   workspaceResolvedByProjectId: true;
 
@@ -61,15 +97,133 @@ export type DeveloperExecutionPolicy = {
 
   shellExecutionAllowed: false;
 
-  directErpDatabaseExecutionAllowed: false;
-
-  softOneWriteExecutionAllowed: false;
+  /*
+   * This controls the Developer agent itself.
+   * It does not prohibit generated application code
+   * from implementing an authorized integration.
+   */
+  networkAccessAllowed: false;
 
   gitCommitAllowed: false;
 
   gitPushAllowed: false;
 
-  networkAccessAllowed: false;
+  softOneAccessPolicy:
+    SoftOneAccessPolicy;
+
+  /*
+   * For SoftOne implementation work, object/table/field assumptions
+   * must be verified against tenant live Web Services metadata when
+   * an active SoftOne connection is available.
+   *
+   * The Developer agent itself does not receive credentials or
+   * unrestricted network access. Discovery is a server-side preflight.
+   */
+  softOneLiveMetadataPreflightRequired: boolean;
+};
+
+
+
+
+export type DeveloperArtifactContract = {
+  /*
+   * Canonical integration/release collection identifier.
+   *
+   * Example:
+   * geniki-taxidromiki
+   */
+  collectionName: string;
+
+  /*
+   * This path is derived by the application.
+   * The Developer agent does not choose an arbitrary root.
+   */
+  artifactRoot: string;
+
+  softOne: {
+    required: boolean;
+
+    advancedJavaScriptGenerationRequired: boolean;
+
+    manualInstallationRequired: true;
+
+    autoInstallationAllowed: false;
+
+    directory: string;
+
+    installationGuidePath: string;
+
+    readmePath: string;
+  };
+
+  api: {
+    required: boolean;
+
+    /*
+     * OpenAPI is the canonical machine-readable
+     * contract of the implemented HTTP API.
+     */
+    openApiRequired: boolean;
+
+    openApiPath: string;
+
+    /*
+     * Postman is a mandatory distribution/testing artifact
+     * and must remain compatible with OpenAPI.
+     */
+    postmanRequired: boolean;
+
+    postmanPath: string;
+
+    sourceOfTruth:
+      "OPENAPI";
+  };
+
+  mappings: {
+    required: boolean;
+
+    directory: string;
+
+    softOneMappingPath: string;
+
+    externalClientMappingPath: string;
+  };
+
+  documentation: {
+    required: true;
+
+    directory: string;
+
+    apiDocumentationPath: string;
+
+    integrationGuidePath: string;
+
+    thirdPartyDeveloperGuidePath: string;
+
+    softOneIntegrationGuidePath: string;
+  };
+
+  qa: {
+    handoffRequired: true;
+
+    directory: string;
+
+    handoffManifestPath: string;
+
+    testMatrixPath: string;
+
+    /*
+     * Reserved for the QA agent.
+     * Developer must not claim this report was produced.
+     */
+    qaReportPath: string;
+
+    documentationValidationRequired: true;
+
+    openApiValidationRequired: boolean;
+
+    postmanValidationRequired: boolean;
+  };
 };
 
 
@@ -94,6 +248,15 @@ export type DeveloperWorkOrder = {
 
   requiredArtifacts:
     DeveloperRequiredArtifact[];
+
+  /*
+   * Deterministic deliverable contract owned by the application.
+   *
+   * The Developer must materialize the required artifacts
+   * inside the project workspace using developer-write-file.
+   */
+  artifactContract:
+    DeveloperArtifactContract;
 
   acceptanceCriteria:
     string[];
