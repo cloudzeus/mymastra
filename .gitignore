@@ -26,3 +26,4 @@ data/softone-blackbook-scheduler-evidence.json
 data/softone-evidence-catalog.json
 data/softone-ingestion-state.json
 data/softone-review-queue.json
+secrets/

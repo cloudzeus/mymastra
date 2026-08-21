@@ -594,7 +594,7 @@ export const uiUxDesignerAgent =
       "UI UX Designer",
 
     model:
-      "openrouter/deepseek/deepseek-v4-flash",
+      `openrouter/${process.env.MASTRA_OPENROUTER_MODEL_ID ?? "auto"}`,
 
     instructions:
       UI_UX_DESIGNER_INSTRUCTIONS,
@@ -615,6 +615,6 @@ export const uiUxDesignerAgent =
         provider:
           "openrouter",
         model:
-          "deepseek/deepseek-v4-flash",
+          process.env.MASTRA_OPENROUTER_MODEL_ID ?? "auto",
       }),
   });

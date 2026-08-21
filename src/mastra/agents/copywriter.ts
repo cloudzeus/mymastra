@@ -610,7 +610,7 @@ export const copywriterAgent =
       "Copywriter",
 
     model:
-      "openrouter/deepseek/deepseek-v4-flash",
+      `openrouter/${process.env.MASTRA_OPENROUTER_MODEL_ID ?? "auto"}`,
 
     instructions:
       COPYWRITER_INSTRUCTIONS,
@@ -631,6 +631,6 @@ export const copywriterAgent =
         provider:
           "openrouter",
         model:
-          "deepseek/deepseek-v4-flash",
+          process.env.MASTRA_OPENROUTER_MODEL_ID ?? "auto",
       }),
   });

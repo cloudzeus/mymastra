@@ -1,4 +1,28 @@
 import { softoneCommunityKnowledge } from "../tools/softone-community-knowledge";
+
+import {
+  presalesRepositoryContext,
+} from "../tools/presales-repository-context";
+
+import {
+  presalesRepositoryTree,
+} from "../tools/presales-repository-tree";
+
+import {
+  presalesRepositoryReadFile,
+} from "../tools/presales-repository-read-file";
+
+import {
+  presalesRepositorySearchCode,
+} from "../tools/presales-repository-search-code";
+
+import {
+  presalesRepositoryManifest,
+} from "../tools/presales-repository-manifest";
+
+import {
+  presalesRepositoryGitMetadata,
+} from "../tools/presales-repository-git-metadata";
 import { Agent } from "@mastra/core/agent";
 import { createAgentAccountingDefaults } from "../accounting/agent-accounting";
 import {
@@ -141,6 +165,122 @@ import {
 } from "../instructions/softone-semantic-composition-policy";
 
 import { SOFTONE_EVIDENCE_POLICY_INSTRUCTIONS } from "../instructions/softone-evidence-policy";
+
+const PRESALES_REPOSITORY_POLICY_INSTRUCTIONS = `
+PRESALES EXISTING-REPOSITORY ANALYSIS POLICY
+
+When a presales request includes one or more server-authorized repository sources:
+
+1. REPOSITORY IS EVIDENCE
+Treat the repository as technical evidence for the customer's stated problem.
+Do not perform a generic code review unless required by the customer request.
+
+2. USE ONLY AUTHORIZED SOURCES
+Use only presalesSourceId values explicitly supplied in the current presales analysis context.
+Never invent, guess or substitute a presalesSourceId.
+
+3. AUTHORITY IS SERVER-SIDE
+tenantId, customerId, opportunityId, repositoryUrl, workspace path,
+resolved ref and resolved commit are application-owned authority.
+Never ask the user to provide or override them.
+
+4. READ-ONLY
+Repository analysis is strictly read-only.
+Never request or attempt:
+- file writes,
+- filesystem mutation,
+- shell execution,
+- git checkout,
+- git fetch,
+- git commit,
+- git push,
+- merge,
+- deployment,
+- repository modification.
+
+5. INSPECTION FLOW
+For each repository source, normally:
+- inspect presales-repository-context;
+- inspect manifest and/or tree;
+- search for code relevant to the customer's problem;
+- read the relevant source files;
+- inspect immutable Git metadata when useful.
+
+Do not read the repository indiscriminately.
+
+6. VERIFIED VS INFERRED
+A VERIFIED finding requires direct repository evidence and at least one file reference.
+An INFERRED finding must be clearly labeled as inference.
+
+Do not strengthen an inference into a verified fact.
+
+7. FILE REFERENCES
+File references must identify repository-relative source paths.
+Never reference absolute server paths.
+Never reference .git internals.
+
+8. CUSTOMER PROBLEM DRIVES ANALYSIS
+Prioritize files, modules, integrations, request paths, data access,
+jobs, retries, caching, locking, authentication, deployment or tests
+that materially relate to the customer's stated request/problem.
+
+9. EXACT COMMIT
+The application layer controls the authoritative inspected commit.
+Do not invent or override commit identifiers in your output.
+
+9A. DISCOVER THE EXISTING SYSTEM, NOT ONLY THE STATED REQUIREMENT
+The customer's request is the business problem, not necessarily a complete
+technical inventory of the existing application.
+
+When inspecting an existing repository, identify material existing
+integrations, platforms and external systems when repository evidence supports
+them, even when the customer did not explicitly mention them.
+
+Examples include ERP systems such as SoftOne, APIs, payment services,
+IoT/camera platforms, storage/CDN providers, authentication providers,
+background jobs and external business systems.
+
+Do not assume such an integration exists because corresponding specialist
+knowledge or tools are available.
+
+A technology or external integration may be reported as VERIFIED only when
+repository evidence supports it. If the repository does not provide enough
+evidence, report it as unknown rather than absent.
+
+10. NO HUMAN BYPASS
+Do not ask a human, operator, administrator or another agent to run
+shell commands or perform prohibited repository operations on your behalf.
+
+10B. BUSINESS OUTPUT LANGUAGE
+Produce business, presales, analytical and customer-facing narrative content
+in Greek.
+
+Keep technical identifiers in their original form, including filenames,
+repository paths, API endpoints, database/model names, SoftOne objects,
+function/class names, vendor product names and protocol identifiers.
+
+Do not translate code identifiers.
+
+11. CAPABILITIES ARE DOMAIN-NEUTRAL
+When classifying a presales engagement, capabilities describe the kind of
+work required, not a vendor, product, protocol or knowledge module.
+
+Use only the canonical presales capability vocabulary supplied by the
+current execution contract.
+
+Examples:
+- SoftOne, ERP, API, AADE or IoT integration => INTEGRATION
+- application implementation => DEVELOPMENT
+- existing-system assessment => TECHNICAL_ANALYSIS
+
+Do not emit technology-specific capability names such as
+SOFTONE_INTEGRATION, ERP_INTEGRATION, API_INTEGRATION,
+IOT_INTEGRATION or REGULATORY_INTEGRATION.
+
+Do not infer that SoftOne or ERP is involved merely because SoftOne
+specialist tools and knowledge are available to you.
+`.trim();
+
 
 const SOFTONE_REVIEW_POLICY_INSTRUCTIONS = `
 SOFTONE REVIEW QUEUE POLICY
@@ -292,18 +432,20 @@ export const analystAgent = new Agent({
 
   name: "Business and Technical Analyst",
 
-  model: "openrouter/deepseek/deepseek-v4-flash",
+  model: `openrouter/${process.env.MASTRA_OPENROUTER_MODEL_ID ?? "auto"}`,
 
   defaultOptions: createAgentAccountingDefaults({
     agentId: "business-technical-analyst",
     agentRole: "BUSINESS_TECHNICAL_ANALYST",
     workflowType: "BUSINESS_TECHNICAL_ANALYSIS",
     provider: "openrouter",
-    model: "deepseek/deepseek-v4-flash",
+    model: process.env.MASTRA_OPENROUTER_MODEL_ID ?? "auto",
   }),
 
   instructions: `
 ${BASE_ANALYST_INSTRUCTIONS}
+
+${PRESALES_REPOSITORY_POLICY_INSTRUCTIONS}
 
 ${SOFTONE_EXPERT_INSTRUCTIONS}
 ${SOFTONE_KNOWLEDGE_POLICY_INSTRUCTIONS}
@@ -335,5 +477,12 @@ ${SOFTONE_OBJECT_DISCOVERY_INSTRUCTIONS}
     softoneSemanticCompose,
     softoneStructuredSqlPlan,
     softoneCommunityKnowledge,
+
+    presalesRepositoryContext,
+    presalesRepositoryTree,
+    presalesRepositoryReadFile,
+    presalesRepositorySearchCode,
+    presalesRepositoryManifest,
+    presalesRepositoryGitMetadata,
   },
 });

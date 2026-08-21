@@ -629,16 +629,103 @@ Evidence rules:
           internalRunId,
         );
 
-        const url =
-          await assertPublicUrl(
-            rawUrl,
+
+        const toolStartedAt =
+          Date.now();
+
+
+        console.log(
+          [
+            "[researchFetchUrl] START",
+            `run=${internalRunId}`,
+            `timeoutMs=${timeoutMs}`,
+            `url=${JSON.stringify(rawUrl)}`,
+          ].join(" "),
+        );
+
+
+        let url: URL;
+
+
+        try {
+          const validationStartedAt =
+            Date.now();
+
+
+          url =
+            await assertPublicUrl(
+              rawUrl,
+            );
+
+
+          console.log(
+            [
+              "[researchFetchUrl] VALIDATED",
+              `run=${internalRunId}`,
+              `elapsedMs=${Date.now() - validationStartedAt}`,
+              `url=${JSON.stringify(url.toString())}`,
+            ].join(" "),
+          );
+        }
+        catch (error) {
+          console.error(
+            [
+              "[researchFetchUrl] VALIDATION_ERROR",
+              `run=${internalRunId}`,
+              `elapsedMs=${Date.now() - toolStartedAt}`,
+              `error=${
+                error instanceof Error
+                  ? JSON.stringify(error.message)
+                  : JSON.stringify(String(error))
+              }`,
+            ].join(" "),
           );
 
-        const response =
-          await fetchPublicUrl(
-            url,
-            timeoutMs,
+          throw error;
+        }
+
+
+        let response: Response;
+
+
+        try {
+          const httpStartedAt =
+            Date.now();
+
+
+          response =
+            await fetchPublicUrl(
+              url,
+              timeoutMs,
+            );
+
+
+          console.log(
+            [
+              "[researchFetchUrl] HEADERS",
+              `run=${internalRunId}`,
+              `elapsedMs=${Date.now() - httpStartedAt}`,
+              `status=${response.status}`,
+              `finalUrl=${JSON.stringify(response.url || url.toString())}`,
+            ].join(" "),
           );
+        }
+        catch (error) {
+          console.error(
+            [
+              "[researchFetchUrl] HTTP_ERROR",
+              `run=${internalRunId}`,
+              `elapsedMs=${Date.now() - toolStartedAt}`,
+              `error=${
+                error instanceof Error
+                  ? JSON.stringify(error.message)
+                  : JSON.stringify(String(error))
+              }`,
+            ].join(" "),
+          );
+
+          throw error;
+        }
 
         if (!response.ok) {
           throw new Error(
@@ -720,6 +807,17 @@ Evidence rules:
             value,
           );
         }
+
+
+        console.log(
+          [
+            "[researchFetchUrl] BODY_END",
+            `run=${internalRunId}`,
+            `elapsedMs=${Date.now() - toolStartedAt}`,
+            `bytes=${totalBytes}`,
+          ].join(" "),
+        );
+
 
         const merged =
           new Uint8Array(

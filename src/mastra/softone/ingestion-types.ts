@@ -14,7 +14,8 @@ export type SoftOneIngestionSource =
   | "WIKI"
   | "OFFICIAL_VIDEO"
   | "GITHUB"
-  | "MANUAL";
+  | "MANUAL"
+  | "WEB_DOCUMENTATION";
 
 export interface SoftOneIngestionCandidate {
   id: string;

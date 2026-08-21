@@ -1,0 +1,421 @@
+{
+  "capabilityKey": "SOFTONE_WEB_SERVICES_CLIENT",
+  "generatedAt": "2026-08-20T20:27:58.166Z",
+  "groups": [
+    {
+      "key": "WINDOWS_1253_RESPONSE_DECODE",
+      "title": "SoftOne responses decoded as Windows-1253 from a binary buffer",
+      "normalizedClaim": "SoftOne Web Services HTTP responses are consumed as an ArrayBuffer or Buffer and decoded as Windows-1253 (cp1253/win1253) using iconv-lite before JSON.parse, instead of relying on resource.text().",
+      "rationale": "6 distinct implementation repositories contain semantically equivalent observations. 1 supporting repository observation(s) have completed human review. Evidence members were accumulated across multiple independent semantic-analysis passes.",
+      "status": "CORROBORATED",
+      "members": [
+        {
+          "evidenceId": "IMPL_3CECC15B638A9DAB4F6DAF11",
+          "reviewId": "REVIEW_CE6C04E560FA150C",
+          "reviewStatus": "RESOLVED",
+          "repository": "cloudzeus/dgparking",
+          "candidateId": "2a5f9977-f370-46e9-a48d-9dda4be146cb",
+          "claim": "Observed implementation behavior: The integration decodes SoftOne Web Services responses via `response.arrayBuffer()`, `Buffer.from()`, and `iconv.decode(buffer, \"win1253\")` before `JSON.parse`, instead of using `res.text()`.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/lib/softone-api.ts"
+          ],
+          "commit": "68232b6a144a291cd62521e78c6c958308016a4e"
+        },
+        {
+          "evidenceId": "IMPL_1B724EAE71406DC15B644B63",
+          "reviewId": "REVIEW_1DE5186EF845028E",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/iotSaas",
+          "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+          "claim": "This implementation decodes every SoftOne HTTP response as Windows-1253 (win1253) using iconv-lite on the response ArrayBuffer before JSON.parse.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/lib/softone.ts"
+          ],
+          "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+        },
+        {
+          "evidenceId": "IMPL_E1E94B79FCBAB52343B62BEA",
+          "reviewId": "REVIEW_7476C9CB3B833F25",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/dgbpm",
+          "candidateId": "0b265cfb-60c8-446c-a3a0-e2695b4b8d9f",
+          "claim": "This implementation uses win1253 (cp1253) decoding via iconv-lite for all SoftOne Web Services responses, processing them as ArrayBuffer → optional gunzip → win1253 decode → JSON.parse.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/lib/entities/sync-softone.ts"
+          ],
+          "commit": "18064a65cec20ebe80e2a19262670fea122ff697"
+        },
+        {
+          "evidenceId": "IMPL_54CC40C02F4D4116FCC34FB8",
+          "reviewId": "REVIEW_FA93482DB0214A2D",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/vcFiles",
+          "candidateId": "68033d05-8a80-4597-8d34-15f4712a4f2c",
+          "claim": "Observed implementation behavior: Η υλοποίηση κάνει decode τις απαντήσεις του SoftOne από windows-1253 (ANSI 1253) σε UTF-8 χρησιμοποιώντας την βιβλιοθήκη 'iconv-lite' (win1253).",
+          "kind": "FUNCTION",
+          "sourceFiles": [
+            "src/app/api/erp/fetch-companies/route.ts"
+          ],
+          "commit": "0803f9aebbcf075c6c43a1d868989bc63adc05c7"
+        },
+        {
+          "evidenceId": "IMPL_16FBAA4BDE9DFBC7BD76ACE6",
+          "reviewId": "REVIEW_A3E8D04898969C69",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/prismafiles",
+          "candidateId": "8b86b4b4-794d-450f-b3a6-90531e5e5999",
+          "claim": "Observed implementation behavior: The fetch-companies route decodes the s1services response as ANSI 1253 (windows-1253) using iconv-lite and falls back to iso-8859-7, cp1253, and latin1 if JSON parsing fails.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/app/api/erp/fetch-companies/route.ts"
+          ],
+          "commit": "d6a088788fdfa32147ddc4c9faf88d8d26658a74"
+        },
+        {
+          "evidenceId": "IMPL_326626F9A15CC5AD0F047085",
+          "reviewId": "REVIEW_C836041771EB4AF0",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/damask",
+          "candidateId": "c65b7fab-a165-47b2-aa5a-4efb37b5c4e2",
+          "claim": "Observed implementation behavior: SoftOne Web Services responses are decoded from Windows‑1253 using iconv-lite, and the fetch response is consumed as an ArrayBuffer first.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/lib/softone.ts"
+          ],
+          "commit": "c9ecb9a9660cef8ef04e5d81760decf0dc2b38b1"
+        }
+      ],
+      "supportingRepositories": [
+        "cloudzeus/dgparking",
+        "cloudzeus/iotSaas",
+        "cloudzeus/dgbpm",
+        "cloudzeus/vcFiles",
+        "cloudzeus/prismafiles",
+        "cloudzeus/damask"
+      ],
+      "distinctRepositoryCount": 6,
+      "reviewedRepositories": [
+        "cloudzeus/dgparking"
+      ],
+      "distinctReviewedRepositoryCount": 1,
+      "confidence": 96,
+      "tags": [
+        "windows-1253",
+        "encoding",
+        "array-buffer",
+        "iconv-lite",
+        "API_BEHAVIOR",
+        "ENCODING"
+      ]
+    },
+    {
+      "key": "CLIENTID_SESSION_PERSISTENCE",
+      "title": "Authenticated clientID is persisted and reused across requests",
+      "normalizedClaim": "The authenticated SoftOne clientID is cached and reused for subsequent requests to avoid per-request authentication; the cache is stored in application-scoped state (HTTP cookie, local JSON file, database row, or in-memory module scope) and re-authentication only runs when the cache is missing or expired.",
+      "rationale": "3 distinct implementation repositories contain semantically equivalent observations. No supporting repository observation has completed human review yet. Repository counts and review counts are computed from validated evidence members, not from model output.",
+      "status": "CORROBORATED",
+      "members": [
+        {
+          "evidenceId": "IMPL_BE11BF684150FB909117F7A9",
+          "reviewId": "REVIEW_A777B9A881CDEAC9",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/dgsoftWwebSite",
+          "candidateId": "98bf6f4d-85a5-44aa-bc97-3c083ae34f61",
+          "claim": "Observed implementation behavior: The implementation exposes an HTTP endpoint that initiates a SoftOne session by calling softOneLoginAndAuthenticate and persists the resulting clientID in a cookie named SOFTONE_CLIENT_ID_COOKIE.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "app/api/softone/login/route.ts"
+          ],
+          "commit": "61f69168ca82d792daa0161c160423e4668d1781"
+        },
+        {
+          "evidenceId": "IMPL_F6CC2ACE3A4B7E6EEEBC268B",
+          "reviewId": "REVIEW_FD1C67CACEF1E300",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/iotSaas",
+          "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+          "claim": "This implementation caches the authenticated SoftOne clientID in a local JSON file at process.cwd()/.s1session.json with a 1-hour TTL and re-authenticates when the cached session is expired or missing.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/lib/softone.ts"
+          ],
+          "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+        },
+        {
+          "evidenceId": "IMPL_49B5E8A188E7DECA4D8937AA",
+          "reviewId": "REVIEW_D06F535498C5A6F5",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/damask",
+          "candidateId": "c65b7fab-a165-47b2-aa5a-4efb37b5c4e2",
+          "claim": "This implementation uses per-day session persistence in a Prisma-managed database table to avoid repeated authentication.",
+          "kind": "FUNCTION",
+          "sourceFiles": [
+            "src/lib/softone.ts"
+          ],
+          "commit": "c9ecb9a9660cef8ef04e5d81760decf0dc2b38b1"
+        }
+      ],
+      "supportingRepositories": [
+        "cloudzeus/dgsoftWwebSite",
+        "cloudzeus/iotSaas",
+        "cloudzeus/damask"
+      ],
+      "distinctRepositoryCount": 3,
+      "reviewedRepositories": [],
+      "distinctReviewedRepositoryCount": 0,
+      "confidence": 70,
+      "tags": [
+        "API_BEHAVIOR",
+        "SESSION"
+      ]
+    },
+    {
+      "key": "SESSION_EXPIRED_ERRORCODE_REAUTH",
+      "title": "Re-authentication on errorcode -100 / -101",
+      "normalizedClaim": "SoftOne sessions that return errorcode -100 or -101 are treated as expired; the integration discards the cached clientID, performs a fresh login + authenticate flow, and retries the original request once.",
+      "rationale": "3 distinct implementation repositories contain semantically equivalent observations. No supporting repository observation has completed human review yet. Repository counts and review counts are computed from validated evidence members, not from model output.",
+      "status": "CORROBORATED",
+      "members": [
+        {
+          "evidenceId": "IMPL_501BA53003A4E02533DF0C6D",
+          "reviewId": "REVIEW_061CF87295FE0F70",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/iotSaas",
+          "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+          "claim": "This implementation treats SoftOne errorcode -100 or -101 as session-expired: it clears the cached session, re-authenticates and retries the request once.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/lib/softone.ts"
+          ],
+          "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+        },
+        {
+          "evidenceId": "IMPL_FC04CE5148E8EA5D89F58525",
+          "reviewId": "REVIEW_41D970A95BD2A3B1",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/dgbpm",
+          "candidateId": "0b265cfb-60c8-446c-a3a0-e2695b4b8d9f",
+          "claim": "Observed implementation behavior: The implementation caches the authenticated clientID at module scope and performs automatic re-authentication when SoftOne returns errorcode -100 or -101 (session expired/invalid).",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/lib/entities/sync-softone.ts"
+          ],
+          "commit": "18064a65cec20ebe80e2a19262670fea122ff697"
+        },
+        {
+          "evidenceId": "IMPL_AF84E2509E9E8ECC474951C8",
+          "reviewId": "REVIEW_F0D2E03DF6341E91",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/damask",
+          "candidateId": "c65b7fab-a165-47b2-aa5a-4efb37b5c4e2",
+          "claim": "Observed implementation behavior: The implementation treats SoftOne error codes -100 and -101 as stale‑session indicators and triggers a full re‑authentication before retrying the failed request.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/lib/softone.ts"
+          ],
+          "commit": "c9ecb9a9660cef8ef04e5d81760decf0dc2b38b1"
+        }
+      ],
+      "supportingRepositories": [
+        "cloudzeus/iotSaas",
+        "cloudzeus/dgbpm",
+        "cloudzeus/damask"
+      ],
+      "distinctRepositoryCount": 3,
+      "reviewedRepositories": [],
+      "distinctReviewedRepositoryCount": 0,
+      "confidence": 70,
+      "tags": [
+        "reauth",
+        "session-expired",
+        "errorcode",
+        "retry"
+      ]
+    },
+    {
+      "key": "TRDR_TABLE_AS_CUSTOMER_SUPPLIER_IDENTITY",
+      "title": "softOne TRDR table is the canonical trader identity source",
+      "normalizedClaim": "Customer/supplier records are read from the SoftOne 'trdr' table/object, with the TRDR field as the unique business identifier; the application upserts to its own store using TRDR as key and only falls back to a code+sodtype combination when TRDR is absent.",
+      "rationale": "3 distinct implementation repositories contain semantically equivalent observations. No supporting repository observation has completed human review yet. Repository counts and review counts are computed from validated evidence members, not from model output.",
+      "status": "CORROBORATED",
+      "members": [
+        {
+          "evidenceId": "IMPL_D0DCCDD6C35FA7B902C3EF45",
+          "reviewId": "REVIEW_ED65C02D286E030B",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/dgbpm",
+          "candidateId": "0b265cfb-60c8-446c-a3a0-e2695b4b8d9f",
+          "claim": "Observed implementation behavior: The implementation extracts specific fields from TRDR (CUSTOMER/SUPPLIER) browser rows: TRDR (business key), CODE, NAME, AFM, ADDRESS, CITY, ZIP, PHONE01, EMAIL, ISACTIVE.",
+          "kind": "FIELD_SEMANTICS",
+          "sourceFiles": [
+            "src/lib/entities/sync-softone.ts"
+          ],
+          "commit": "18064a65cec20ebe80e2a19262670fea122ff697"
+        },
+        {
+          "evidenceId": "IMPL_3A73D00261517FB64E5ECC6B",
+          "reviewId": "REVIEW_BA0E7B4B92AD3BE6",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/prismafiles",
+          "candidateId": "8b86b4b4-794d-450f-b3a6-90531e5e5999",
+          "claim": "Observed implementation behavior: The sync-companies route maps a SoftOne exported company record to a local Company model using fields sodtype (parsed to Int), trdr (parsed to Int), code, name, afm, country, address, zip, city, phone01, phone02, fax, jobtypetrd (parsed to Int), webpage, email, emailacc, irsdata, and a fixed concent=false default.",
+          "kind": "FIELD_SEMANTICS",
+          "sourceFiles": [
+            "src/app/api/erp/sync-companies/route.ts",
+            "prisma/schema.prisma"
+          ],
+          "commit": "d6a088788fdfa32147ddc4c9faf88d8d26658a74"
+        },
+        {
+          "evidenceId": "IMPL_E846C086E5B50AF51423656A",
+          "reviewId": "REVIEW_44F459508393FB7C",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/prismafiles",
+          "candidateId": "8b86b4b4-794d-450f-b3a6-90531e5e5999",
+          "claim": "Observed implementation behavior: The implementation treats erpCompany.trdr as the unique SoftOne trader identifier and uses it as the primary lookup key for upserting companies (prisma.company.findUnique({ where: { trdr } })).",
+          "kind": "FIELD_SEMANTICS",
+          "sourceFiles": [
+            "src/app/api/erp/sync-companies/route.ts",
+            "prisma/schema.prisma"
+          ],
+          "commit": "d6a088788fdfa32147ddc4c9faf88d8d26658a74"
+        },
+        {
+          "evidenceId": "IMPL_35C87CF31A159C77CBCA32A3",
+          "reviewId": "REVIEW_518615BB7E1EC652",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/vcFiles",
+          "candidateId": "68033d05-8a80-4597-8d34-15f4712a4f2c",
+          "claim": "Observed implementation behavior: Κατά την ανάκτηση εταιρειών, η υλοποίηση παρατηρεί ότι τα δεδομένα εταιρειών επιστρέφονται σε JSON response με ιδιότητες όπως sodtype, trdr, code, name, afm, country, city, address, zip, phone01, jobtypetrd, webpage, email, emailacc, irsdata, upddate.",
+          "kind": "FIELD_SEMANTICS",
+          "sourceFiles": [
+            "src/app/api/erp/sync-companies/route.ts"
+          ],
+          "commit": "0803f9aebbcf075c6c43a1d868989bc63adc05c7"
+        }
+      ],
+      "supportingRepositories": [
+        "cloudzeus/dgbpm",
+        "cloudzeus/prismafiles",
+        "cloudzeus/vcFiles"
+      ],
+      "distinctRepositoryCount": 3,
+      "reviewedRepositories": [],
+      "distinctReviewedRepositoryCount": 0,
+      "confidence": 70,
+      "tags": [
+        "OBJECT_BEHAVIOR",
+        "PHYSICAL_MAPPING",
+        "IDENTITY"
+      ]
+    },
+    {
+      "key": "LOGIN_RESPONSE_CLIENTID_AND_EXTENDED_FIELDS",
+      "title": "Login response is expected to contain clientID, s1u, hyperlinks, canexport, image, companyinfo",
+      "normalizedClaim": "A successful SoftOne login response is parsed for the clientID session identifier together with a consistent extended field set (s1u, hyperlinks, canexport, image, companyinfo).",
+      "rationale": "2 distinct implementation repositories contain semantically equivalent observations. No supporting repository observation has completed human review yet. Repository counts and review counts are computed from validated evidence members, not from model output.",
+      "status": "CORROBORATED",
+      "members": [
+        {
+          "evidenceId": "IMPL_7C0D7345199801C7E1C30974",
+          "reviewId": "REVIEW_A4A25AB89D107620",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/prismafiles",
+          "candidateId": "8b86b4b4-794d-450f-b3a6-90531e5e5999",
+          "claim": "Observed implementation behavior: The implementation expects the authentication response to contain clientID, s1u, hyperlinks, canexport, image, and companyinfo fields.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/app/api/erp/authenticate/route.ts"
+          ],
+          "commit": "d6a088788fdfa32147ddc4c9faf88d8d26658a74"
+        },
+        {
+          "evidenceId": "IMPL_32D067D715ED61CB77EE41D5",
+          "reviewId": "REVIEW_40B7F14D1F6BD7E1",
+          "reviewStatus": "PENDING",
+          "repository": "cloudzeus/vcFiles",
+          "candidateId": "68033d05-8a80-4597-8d34-15f4712a4f2c",
+          "claim": "Observed implementation behavior: Η υλοποίηση αναμένει από ένα successful login response τα πεδία clientID, s1u, hyperlinks, canexport, image και companyinfo.",
+          "kind": "API_BEHAVIOR",
+          "sourceFiles": [
+            "src/app/api/erp/authenticate/route.ts"
+          ],
+          "commit": "0803f9aebbcf075c6c43a1d868989bc63adc05c7"
+        }
+      ],
+      "supportingRepositories": [
+        "cloudzeus/prismafiles",
+        "cloudzeus/vcFiles"
+      ],
+      "distinctRepositoryCount": 2,
+      "reviewedRepositories": [],
+      "distinctReviewedRepositoryCount": 0,
+      "confidence": 60,
+      "tags": [
+        "API_BEHAVIOR",
+        "AUTHENTICATION",
+        "RESPONSE_SHAPE"
+      ]
+    }
+  ],
+  "ungroupedEvidenceIds": [
+    "IMPL_4CA5BE02D25A926FDD7C2D0C",
+    "IMPL_CED9100883C4E62661256963",
+    "IMPL_2A4FA076F2CBC81F2420AB86",
+    "IMPL_585D18133EA4705532EB5729",
+    "IMPL_DE4E9C56C80BFDF129052FDD",
+    "IMPL_263F4D8086CC6D91640E7907",
+    "IMPL_2FF970E7FE2D207B0101AAD9",
+    "IMPL_6825E844A9EE66FA36BEF3DE",
+    "IMPL_71E56B9F24D20616636426E5",
+    "IMPL_7C7FB332CF07A126C169C434",
+    "IMPL_E2D3D5D162D6FC530C069318",
+    "IMPL_514BCB71429BF504CFDE2EFB",
+    "IMPL_8967C54526E69F8D8E9D2A5E",
+    "IMPL_9FD36E7B17D62FB579D01AB0",
+    "IMPL_809F85A5F4ED789E54E3332D",
+    "IMPL_1035A999B5311238ADAD3FFE",
+    "IMPL_07889D88AFF938E3BCEFE462",
+    "IMPL_A24BB16D976588FCE923B410",
+    "IMPL_D3DC98F7C7C297D6151B891B",
+    "IMPL_7A57E4FEBA6FFD50006E1F7B",
+    "IMPL_432BC3D2B9ED6948DF2EA7D8",
+    "IMPL_0FCF5B138E72CE31AA49F717",
+    "IMPL_4C9F21E3980C1FCA0FBBDBF4",
+    "IMPL_622137C3BB66B59CF4F3F6F2",
+    "IMPL_0DA010D3FBF5BAA253AADBD0",
+    "IMPL_E3EFDDEFFB48FE05D0103558",
+    "IMPL_FD7F3481F8077757991F3640",
+    "IMPL_089772DF8864A74D94A83109",
+    "IMPL_E18D92D79A610A9C85B800DB",
+    "IMPL_A8BE59EA34E258246FB93410",
+    "IMPL_738CEDA7F3E2FFCAF6F90EA8",
+    "IMPL_7A1129D78A5EB765C9F36660",
+    "IMPL_892C01EB8B82105EB97DC972",
+    "IMPL_0FB9CDD44ABA148AFE972B63",
+    "IMPL_DA2EF55032C648BFED9E4AB0",
+    "IMPL_1C421B8BE90892EDC672084A",
+    "IMPL_B1FE4D432FB361C12656A36C",
+    "IMPL_C65931080C08AB3B2D8E3C79",
+    "IMPL_BF48E1EE5EC7BB707E6E1B5B",
+    "IMPL_D972C91B3E1B4B22B8731AF8",
+    "IMPL_DF2027D7502B71D808FEE00C",
+    "IMPL_8B5ACF359522FE619DDF6D26",
+    "IMPL_F730D5C2EDA4D80A361FDB86",
+    "IMPL_A6441346EC68894FD79E9A8D",
+    "IMPL_D222E1C4F8E8271916DE5830",
+    "IMPL_A7C1BEECF65BA0B62EC93888",
+    "IMPL_EAAC37895577DA1B022F30F3",
+    "IMPL_60090FADD6995972E10613C3",
+    "IMPL_013C897E528073B5FB777BD8",
+    "IMPL_EBC9F64EFDAAFDB449076E48",
+    "IMPL_66773EEDDA51C49A18661ADE",
+    "IMPL_719B6EE0EB0FF888EBD6808A",
+    "IMPL_4F276BF65DAC4FD99BAD75FA",
+    "IMPL_B27CB399A00BF099B7373D2D",
+    "IMPL_8605B72CD985503BF20389C5"
+  ]
+}

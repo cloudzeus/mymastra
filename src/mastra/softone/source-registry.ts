@@ -209,6 +209,48 @@ export const SOFTONE_SOURCE_REGISTRY: readonly SoftOneSourceDefinition[] = [
   },
 
   {
+    id: "IMPLEMENTATION_REPOSITORY",
+    title: "Internal Implementation Repository",
+    type: "GITHUB",
+    authority: "INFERRED",
+    productAreas: [
+      "WEB_SERVICES",
+      "OBJECT_MODEL",
+      "DATA_FLOWS",
+      "SCRIPTING",
+      "EVENTS",
+      "SQL",
+      "SQLDATA",
+      "CUSTOMIZATION",
+      "INTEGRATIONS",
+      "SCHEMA",
+      "RELATIONS",
+      "PHYSICAL_DATABASE",
+      "TENANT_CONFIGURATION",
+    ],
+    verificationEffects: [
+      "CAN_VERIFY_WORKING_IMPLEMENTATION",
+    ],
+    description:
+      "Read-only evidence extracted from pinned internal implementation repositories. It proves that a pattern was implemented in a working project; it does not independently establish canonical SoftOne behavior.",
+    usagePolicy: [
+      "Read repositories only at the exact recorded commit.",
+      "Record repository, commit and exact source file for every extracted claim.",
+      "Treat implementation-specific configuration and tenant assumptions as non-canonical.",
+      "Never promote implementation evidence directly to VERIFIED.",
+      "Require human review before ingestion.",
+      "Prefer official documentation or independent verified evidence for canonical SoftOne behavior.",
+    ],
+    tags: [
+      "implementation",
+      "github",
+      "internal",
+      "working-code",
+      "evidence",
+    ],
+  },
+
+  {
     id: "SOFTONE_DEVELOPERS_GITHUB",
     title: "SoftOne Developers Network GitHub",
     type: "GITHUB",

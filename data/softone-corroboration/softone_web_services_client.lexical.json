@@ -1,0 +1,616 @@
+{
+  "capabilityKey": "SOFTONE_WEB_SERVICES_CLIENT",
+  "generatedAt": "2026-08-21T03:50:25.599Z",
+  "buckets": [
+    {
+      "bucket": "LOGIN_TWO_STEP_AUTHENTICATE",
+      "groups": [
+        {
+          "key": "LOGIN_TWO_STEP_AUTHENTICATE_TWO_STEP_AUTHENTICATION_FLOW",
+          "title": "SoftOne uses a two‑step Login + authenticate sequence",
+          "normalizedClaim": "SoftOne authentication requires a two‑step sequence: service 'Login' with USERNAME, PASSWORD, APPID, followed by service 'authenticate' with clientID, COMPANY, BRANCH, MODULE, REFID.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket LOGIN_TWO_STEP_AUTHENTICATE. 0 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_8B5ACF359522FE619DDF6D26",
+              "reviewId": "REVIEW_EBE5134E98E92DFA",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/damask",
+              "candidateId": "c65b7fab-a165-47b2-aa5a-4efb37b5c4e2",
+              "claim": "Observed implementation behavior: SoftOne authentication requires a two‑step sequence: Login (SERVICE: 'Login') followed by authenticate (service: 'authenticate').",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "c9ecb9a9660cef8ef04e5d81760decf0dc2b38b1"
+            },
+            {
+              "evidenceId": "IMPL_66773EEDDA51C49A18661ADE",
+              "reviewId": "REVIEW_3F8E4C48EEEFA77C",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/dgbpm",
+              "candidateId": "0b265cfb-60c8-446c-a3a0-e2695b4b8d9f",
+              "claim": "Observed implementation behavior: The implementation uses a two-step authentication flow: SERVICE: Login with USERNAME, PASSWORD, APPID, VERSION: '2' → authenticate with clientID, COMPANY, BRANCH, MODULE, REFID, VERSION: '2'.",
+              "kind": "FUNCTION",
+              "sourceFiles": [
+                "src/lib/entities/sync-softone.ts"
+              ],
+              "commit": "18064a65cec20ebe80e2a19262670fea122ff697"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/damask",
+            "cloudzeus/dgbpm"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [],
+          "distinctReviewedRepositoryCount": 0,
+          "confidence": 60,
+          "tags": [
+            "LOGIN_TWO_STEP_AUTHENTICATE",
+            "authentication",
+            "login",
+            "authenticate",
+            "two‑step"
+          ]
+        }
+      ]
+    },
+    {
+      "bucket": "CLIENTID_REQUEST_SESSION",
+      "groups": [
+        {
+          "key": "CLIENTID_REQUEST_SESSION_LOGIN_SERVICE_AUTHENTICATION_WITH_CLIENTID",
+          "title": "Login Service Authentication with clientID",
+          "normalizedClaim": "The integration authenticates with a single login service request containing username, password, appId, COMPANY, BRANCH, MODULE, REFID, and VERSION, and receives a clientID upon successful response.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket CLIENTID_REQUEST_SESSION. 1 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_4CA5BE02D25A926FDD7C2D0C",
+              "reviewId": "REVIEW_3E72079532631AD0",
+              "reviewStatus": "RESOLVED",
+              "repository": "cloudzeus/dgparking",
+              "candidateId": "2a5f9977-f370-46e9-a48d-9dda4be146cb",
+              "claim": "Observed implementation behavior: This integration authenticates with a single `login` service request containing `username`, `password`, `appId`, `COMPANY`, `BRANCH`, `MODULE`, `REFID`, `VERSION`, and optional `registeredName`, and treats a response containing `success` and `clientID` as authenticated.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone-api.ts"
+              ],
+              "commit": "68232b6a144a291cd62521e78c6c958308016a4e"
+            },
+            {
+              "evidenceId": "IMPL_71E56B9F24D20616636426E5",
+              "reviewId": "REVIEW_033ACEE747FE3357",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/iotSaas",
+              "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+              "claim": "This implementation performs SoftOne authentication by calling the 'login' service with username, password, appId, COMPANY, BRANCH, MODULE, REFID and VERSION parameters, and treats a response with success=true and clientID as the authenticated session.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/dgparking",
+            "cloudzeus/iotSaas"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [
+            "cloudzeus/dgparking"
+          ],
+          "distinctReviewedRepositoryCount": 1,
+          "confidence": 61,
+          "tags": [
+            "CLIENTID_REQUEST_SESSION",
+            "authentication",
+            "login"
+          ]
+        },
+        {
+          "key": "CLIENTID_REQUEST_SESSION_SUBSEQUENT_REQUESTS_INCLUDE_SERVICE_AND_CLIENTID",
+          "title": "Subsequent Requests Include service and clientID",
+          "normalizedClaim": "Subsequent SoftOne API request payloads include the `service` and `clientID` fields.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket CLIENTID_REQUEST_SESSION. 1 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_CED9100883C4E62661256963",
+              "reviewId": "REVIEW_2D6ED8E87E96C447",
+              "reviewStatus": "RESOLVED",
+              "repository": "cloudzeus/dgparking",
+              "candidateId": "2a5f9977-f370-46e9-a48d-9dda4be146cb",
+              "claim": "Observed implementation behavior: Subsequent SoftOne requests are built by this integration as `{ service, clientID, ...requestData }` and sent as JSON over `fetch` using the stored cookie-based `clientID`.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone-api.ts"
+              ],
+              "commit": "68232b6a144a291cd62521e78c6c958308016a4e"
+            },
+            {
+              "evidenceId": "IMPL_A24BB16D976588FCE923B410",
+              "reviewId": "REVIEW_39ACD937BD9D796B",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/iotSaas",
+              "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+              "claim": "This implementation's generic s1() wrapper sends SoftOne requests with service, clientID, appId, VERSION '2' and additional params.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/dgparking",
+            "cloudzeus/iotSaas"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [
+            "cloudzeus/dgparking"
+          ],
+          "distinctReviewedRepositoryCount": 1,
+          "confidence": 61,
+          "tags": [
+            "CLIENTID_REQUEST_SESSION",
+            "request",
+            "clientID"
+          ]
+        }
+      ]
+    },
+    {
+      "bucket": "GETTABLE_REQUEST",
+      "groups": [
+        {
+          "key": "GETTABLE_REQUEST_GETTABLE_CLIENT_FLOW",
+          "title": "GetTable client flow exists in both repositories",
+          "normalizedClaim": "Both repositories implement a client flow that invokes the SoftOne Web Services GetTable service.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket GETTABLE_REQUEST. 1 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_7C7FB332CF07A126C169C434",
+              "reviewId": "REVIEW_003B9D74AC79EF19",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/iotSaas",
+              "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+              "claim": "This implementation uses the SoftOne Web Services 'GetTable' service with TABLE, FIELDS and FILTER parameters to fetch table rows.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+            },
+            {
+              "evidenceId": "IMPL_263F4D8086CC6D91640E7907",
+              "reviewId": "REVIEW_A3A1248AFD574FBE",
+              "reviewStatus": "RESOLVED",
+              "repository": "cloudzeus/dgparking",
+              "candidateId": "2a5f9977-f370-46e9-a48d-9dda4be146cb",
+              "claim": "Observed implementation behavior: The `GetTable` client in this source treats a response as successful when `result.success === true` and includes `data`, or when `result.data` is present even if no `success` property exists.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone-api.ts"
+              ],
+              "commit": "68232b6a144a291cd62521e78c6c958308016a4e"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/iotSaas",
+            "cloudzeus/dgparking"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [
+            "cloudzeus/dgparking"
+          ],
+          "distinctReviewedRepositoryCount": 1,
+          "confidence": 61,
+          "tags": [
+            "GETTABLE_REQUEST",
+            "SOFTONE",
+            "WEB_SERVICES",
+            "GETTABLE"
+          ]
+        }
+      ]
+    },
+    {
+      "bucket": "GETTABLE_RESPONSE",
+      "groups": [
+        {
+          "key": "GETTABLE_RESPONSE_GETTABLE_SERVICE_USAGE",
+          "title": "GetTable service usage",
+          "normalizedClaim": "Both implementations use the SoftOne GetTable Web Service to fetch table rows and process its tabular response, rather than relying on object CRUD getData calls.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket GETTABLE_RESPONSE. 1 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_263F4D8086CC6D91640E7907",
+              "reviewId": "REVIEW_A3A1248AFD574FBE",
+              "reviewStatus": "RESOLVED",
+              "repository": "cloudzeus/dgparking",
+              "candidateId": "2a5f9977-f370-46e9-a48d-9dda4be146cb",
+              "claim": "Observed implementation behavior: The `GetTable` client in this source treats a response as successful when `result.success === true` and includes `data`, or when `result.data` is present even if no `success` property exists.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone-api.ts"
+              ],
+              "commit": "68232b6a144a291cd62521e78c6c958308016a4e"
+            },
+            {
+              "evidenceId": "IMPL_7C7FB332CF07A126C169C434",
+              "reviewId": "REVIEW_003B9D74AC79EF19",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/iotSaas",
+              "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+              "claim": "This implementation uses the SoftOne Web Services 'GetTable' service with TABLE, FIELDS and FILTER parameters to fetch table rows.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+            },
+            {
+              "evidenceId": "IMPL_E2D3D5D162D6FC530C069318",
+              "reviewId": "REVIEW_5973381EC1BA0E0A",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/iotSaas",
+              "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+              "claim": "This implementation expects GetTable responses to follow the shape { success, table, count, model: [[{name,type},...]], data: [[v0,v1,...], ...] } and falls back to alternative 'rows'/'fields' shapes.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/dgparking",
+            "cloudzeus/iotSaas"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [
+            "cloudzeus/dgparking"
+          ],
+          "distinctReviewedRepositoryCount": 1,
+          "confidence": 61,
+          "tags": [
+            "GETTABLE_RESPONSE",
+            "SOFTONE",
+            "GETTABLE",
+            "WEB_SERVICES"
+          ]
+        }
+      ]
+    },
+    {
+      "bucket": "SQLDATA",
+      "groups": [
+        {
+          "key": "SQLDATA_SQLDATA_BASE_FIELDS",
+          "title": "SqlData Base Request Fields",
+          "normalizedClaim": "The SqlData request payload includes the string fields appId, clientId, SqlName, and param1.",
+          "rationale": "3 distinct repositories support this assertion inside lexical bucket SQLDATA. 1 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_2FF970E7FE2D207B0101AAD9",
+              "reviewId": "REVIEW_0098BDB71ADB53D8",
+              "reviewStatus": "RESOLVED",
+              "repository": "cloudzeus/dgparking",
+              "candidateId": "2a5f9977-f370-46e9-a48d-9dda4be146cb",
+              "claim": "Observed implementation behavior: `getSoftOneSqlData` calls the `SqlData` service and uses `clientID` as a string, `appId` as a string, `SqlName` in camelCase, and `param1` in lowercase; it expects `totalcount` and `rows` in a successful response.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/softone-api.ts"
+              ],
+              "commit": "68232b6a144a291cd62521e78c6c958308016a4e"
+            },
+            {
+              "evidenceId": "IMPL_089772DF8864A74D94A83109",
+              "reviewId": "REVIEW_D15A994A4E17E2C2",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/prismafiles",
+              "candidateId": "8b86b4b4-794d-450f-b3a6-90531e5e5999",
+              "claim": "Observed implementation behavior: The implementation sends a request to the s1services endpoint with appId, clientId, SqlName, service, param1, and param2 fields when fetching companies.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/app/api/erp/fetch-companies/route.ts"
+              ],
+              "commit": "d6a088788fdfa32147ddc4c9faf88d8d26658a74"
+            },
+            {
+              "evidenceId": "IMPL_C65931080C08AB3B2D8E3C79",
+              "reviewId": "REVIEW_E7DAC347FF129771",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/vcFiles",
+              "candidateId": "68033d05-8a80-4597-8d34-15f4712a4f2c",
+              "claim": "Observed implementation behavior: Η υλοποίηση χρησιμοποιεί ένα service με SqlName για την ανάκτηση εταιρειών: χρησιμοποιεί τα πεδία appId, clientId, SqlName, service, param1 και param2 στο request.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/app/api/erp/fetch-companies/route.ts"
+              ],
+              "commit": "0803f9aebbcf075c6c43a1d868989bc63adc05c7"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/dgparking",
+            "cloudzeus/prismafiles",
+            "cloudzeus/vcFiles"
+          ],
+          "distinctRepositoryCount": 3,
+          "reviewedRepositories": [
+            "cloudzeus/dgparking"
+          ],
+          "distinctReviewedRepositoryCount": 1,
+          "confidence": 71,
+          "tags": [
+            "SQLDATA",
+            "SqlData",
+            "request"
+          ]
+        },
+        {
+          "key": "SQLDATA_SQLDATA_SERVICE_FIELD",
+          "title": "SqlData Service Field",
+          "normalizedClaim": "When used to fetch companies, the request includes a 'service' field.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket SQLDATA. 0 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_089772DF8864A74D94A83109",
+              "reviewId": "REVIEW_D15A994A4E17E2C2",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/prismafiles",
+              "candidateId": "8b86b4b4-794d-450f-b3a6-90531e5e5999",
+              "claim": "Observed implementation behavior: The implementation sends a request to the s1services endpoint with appId, clientId, SqlName, service, param1, and param2 fields when fetching companies.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/app/api/erp/fetch-companies/route.ts"
+              ],
+              "commit": "d6a088788fdfa32147ddc4c9faf88d8d26658a74"
+            },
+            {
+              "evidenceId": "IMPL_C65931080C08AB3B2D8E3C79",
+              "reviewId": "REVIEW_E7DAC347FF129771",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/vcFiles",
+              "candidateId": "68033d05-8a80-4597-8d34-15f4712a4f2c",
+              "claim": "Observed implementation behavior: Η υλοποίηση χρησιμοποιεί ένα service με SqlName για την ανάκτηση εταιρειών: χρησιμοποιεί τα πεδία appId, clientId, SqlName, service, param1 και param2 στο request.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/app/api/erp/fetch-companies/route.ts"
+              ],
+              "commit": "0803f9aebbcf075c6c43a1d868989bc63adc05c7"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/prismafiles",
+            "cloudzeus/vcFiles"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [],
+          "distinctReviewedRepositoryCount": 0,
+          "confidence": 60,
+          "tags": [
+            "SQLDATA",
+            "SqlData",
+            "request",
+            "companies"
+          ]
+        },
+        {
+          "key": "SQLDATA_SQLDATA_PARAM2_FETCH_COMPANIES",
+          "title": "SqlData param2 Field for Companies",
+          "normalizedClaim": "When fetching companies, the request includes a 'param2' field in addition to param1.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket SQLDATA. 0 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_089772DF8864A74D94A83109",
+              "reviewId": "REVIEW_D15A994A4E17E2C2",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/prismafiles",
+              "candidateId": "8b86b4b4-794d-450f-b3a6-90531e5e5999",
+              "claim": "Observed implementation behavior: The implementation sends a request to the s1services endpoint with appId, clientId, SqlName, service, param1, and param2 fields when fetching companies.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/app/api/erp/fetch-companies/route.ts"
+              ],
+              "commit": "d6a088788fdfa32147ddc4c9faf88d8d26658a74"
+            },
+            {
+              "evidenceId": "IMPL_C65931080C08AB3B2D8E3C79",
+              "reviewId": "REVIEW_E7DAC347FF129771",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/vcFiles",
+              "candidateId": "68033d05-8a80-4597-8d34-15f4712a4f2c",
+              "claim": "Observed implementation behavior: Η υλοποίηση χρησιμοποιεί ένα service με SqlName για την ανάκτηση εταιρειών: χρησιμοποιεί τα πεδία appId, clientId, SqlName, service, param1 και param2 στο request.",
+              "kind": "API_BEHAVIOR",
+              "sourceFiles": [
+                "src/app/api/erp/fetch-companies/route.ts"
+              ],
+              "commit": "0803f9aebbcf075c6c43a1d868989bc63adc05c7"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/prismafiles",
+            "cloudzeus/vcFiles"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [],
+          "distinctReviewedRepositoryCount": 0,
+          "confidence": 60,
+          "tags": [
+            "SQLDATA",
+            "SqlData",
+            "request",
+            "companies",
+            "param2"
+          ]
+        }
+      ]
+    },
+    {
+      "bucket": "TRDR_IDENTITY",
+      "groups": [
+        {
+          "key": "TRDR_IDENTITY_TRDR_MASTER_TABLE_FOR_CUSTOMER_SUPPLIER",
+          "title": "TRDR as master table for CUSTOMER and SUPPLIER",
+          "normalizedClaim": "The SoftOne TRDR physical table is the master data source for both CUSTOMER and SUPPLIER business objects, and the TRDR field is the canonical identifier for these records.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket TRDR_IDENTITY. 0 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_514BCB71429BF504CFDE2EFB",
+              "reviewId": "REVIEW_8BEE71A4EFC46D8C",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/iotSaas",
+              "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+              "claim": "This implementation maps customer records to the SoftOne 'trdr' table and requests fields trdr, code, afm, irsdata, name, sotitle, jobtype, trdbusiness, trdpgroup, webpage, isprosp, prjcs, phone01, phone02, email, emailacc, address, zip, city, country, insdate and upddate.",
+              "kind": "PHYSICAL_MAPPING",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+            },
+            {
+              "evidenceId": "IMPL_A7C1BEECF65BA0B62EC93888",
+              "reviewId": "REVIEW_5078FB23CFB7367F",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/dgbpm",
+              "candidateId": "0b265cfb-60c8-446c-a3a0-e2695b4b8d9f",
+              "claim": "Observed implementation behavior: The implementation maps the SUPPLIER business concept to the SoftOne object 'SUPPLIER' and the CUSTOMER business concept to the SoftOne object 'CUSTOMER', both using TRDR as the main table with externalId=TRDR.",
+              "kind": "OBJECT_BEHAVIOR",
+              "sourceFiles": [
+                "src/lib/entities/sync-softone.ts"
+              ],
+              "commit": "18064a65cec20ebe80e2a19262670fea122ff697"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/iotSaas",
+            "cloudzeus/dgbpm"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [],
+          "distinctReviewedRepositoryCount": 0,
+          "confidence": 60,
+          "tags": [
+            "TRDR_IDENTITY",
+            "TRDR",
+            "CUSTOMER",
+            "SUPPLIER"
+          ]
+        },
+        {
+          "key": "TRDR_IDENTITY_TRDR_EXTERNAL_REFERENCE_STORAGE",
+          "title": "Storing TRDR as external reference",
+          "normalizedClaim": "Implementations retrieve the SoftOne TRDR identifier and store it locally as a unique external reference to maintain a persistent link between local records and SoftOne trader master data.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket TRDR_IDENTITY. 0 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_514BCB71429BF504CFDE2EFB",
+              "reviewId": "REVIEW_8BEE71A4EFC46D8C",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/iotSaas",
+              "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+              "claim": "This implementation maps customer records to the SoftOne 'trdr' table and requests fields trdr, code, afm, irsdata, name, sotitle, jobtype, trdbusiness, trdpgroup, webpage, isprosp, prjcs, phone01, phone02, email, emailacc, address, zip, city, country, insdate and upddate.",
+              "kind": "PHYSICAL_MAPPING",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+            },
+            {
+              "evidenceId": "IMPL_0FB9CDD44ABA148AFE972B63",
+              "reviewId": "REVIEW_3A3AC7B5F634D5DD",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/prismafiles",
+              "candidateId": "8b86b4b4-794d-450f-b3a6-90531e5e5999",
+              "claim": "Observed implementation behavior: The implementation uses a Prisma model Company with field trdr marked @unique to store the SoftOne trader identifier.",
+              "kind": "PHYSICAL_MAPPING",
+              "sourceFiles": [
+                "prisma/schema.prisma"
+              ],
+              "commit": "d6a088788fdfa32147ddc4c9faf88d8d26658a74"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/iotSaas",
+            "cloudzeus/prismafiles"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [],
+          "distinctReviewedRepositoryCount": 0,
+          "confidence": 60,
+          "tags": [
+            "TRDR_IDENTITY",
+            "TRDR",
+            "EXTERNAL_LINK"
+          ]
+        }
+      ]
+    },
+    {
+      "bucket": "TRDR_SODTYPE",
+      "groups": [
+        {
+          "key": "TRDR_SODTYPE_TRDR_SODTYPE_CUSTOMER_CLASSIFICATION",
+          "title": "Διάκριση πελατών μέσω TRDR.SODTYPE",
+          "normalizedClaim": "Οι υλοποιήσεις ταξινομούν εγγραφές του SoftOne TRDR με SODTYPE=13 ως πελάτες.",
+          "rationale": "2 distinct repositories support this assertion inside lexical bucket TRDR_SODTYPE. 0 supporting repository observation(s) have completed human review. Counts and confidence are computed deterministically from validated evidence IDs.",
+          "status": "CORROBORATED",
+          "members": [
+            {
+              "evidenceId": "IMPL_8967C54526E69F8D8E9D2A5E",
+              "reviewId": "REVIEW_C4394048B85FC016",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/iotSaas",
+              "candidateId": "7809391d-ab96-46d5-bf68-139c8942e287",
+              "claim": "This implementation filters TRDR customer rows with 'sodtype=13 AND company=10 AND isactive=1'.",
+              "kind": "TENANT_RULE",
+              "sourceFiles": [
+                "src/lib/softone.ts"
+              ],
+              "commit": "432e7116d28bb4541e643309ba7a718a6b826e9a"
+            },
+            {
+              "evidenceId": "IMPL_BF48E1EE5EC7BB707E6E1B5B",
+              "reviewId": "REVIEW_0EC2B6897ACAEE9E",
+              "reviewStatus": "PENDING",
+              "repository": "cloudzeus/vcFiles",
+              "candidateId": "68033d05-8a80-4597-8d34-15f4712a4f2c",
+              "claim": "Observed implementation behavior: Η υλοποίηση αντιστοιχίζει την εταιρεία του ERP στη βάση δεδομένων της εφαρμογής μέσω του SoftOne TRDR (πεδίο trdr) και διαφοροποιεί πελάτες από προμηθευτές με το πεδίο sodtype (12 για προμηθευτή, 13 για πελάτη).",
+              "kind": "BUSINESS_SEMANTIC",
+              "sourceFiles": [
+                "src/app/api/erp/sync-companies/route.ts",
+                "prisma/schema.prisma"
+              ],
+              "commit": "0803f9aebbcf075c6c43a1d868989bc63adc05c7"
+            }
+          ],
+          "supportingRepositories": [
+            "cloudzeus/iotSaas",
+            "cloudzeus/vcFiles"
+          ],
+          "distinctRepositoryCount": 2,
+          "reviewedRepositories": [],
+          "distinctReviewedRepositoryCount": 0,
+          "confidence": 60,
+          "tags": [
+            "TRDR_SODTYPE",
+            "TRDR",
+            "SODTYPE",
+            "CUSTOMER"
+          ]
+        }
+      ]
+    }
+  ]
+}

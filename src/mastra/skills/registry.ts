@@ -51,7 +51,6 @@ export const SPECIALIST_ROLE_SKILLS:
     SEARCH_VISIBILITY: [
       "seo-audit",
       "ai-seo",
-      "generative-engine-optimization",
     ],
 
     CONTENT_CREATOR: [

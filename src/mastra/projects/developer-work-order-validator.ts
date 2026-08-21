@@ -376,6 +376,21 @@ export function validateDeveloperWorkOrder(
   }
 
 
+  const expectedLiveMetadataPreflight =
+    workOrder.taskType ===
+      "SOFTONE_INTEGRATION";
+
+
+  if (
+    policy.softOneLiveMetadataPreflightRequired !==
+      expectedLiveMetadataPreflight
+  ) {
+    errors.push(
+      `Developer SoftOne live metadata preflight policy mismatch: expected=${expectedLiveMetadataPreflight}`,
+    );
+  }
+
+
   const expectedSoftOnePolicy =
     deriveSoftOneAccessPolicy(
       definition,

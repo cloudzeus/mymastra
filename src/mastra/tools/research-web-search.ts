@@ -232,30 +232,80 @@ It does not write files, modify projects or access ERP systems.
           searchDepth,
         );
 
-        const result =
-          await tavilySearch({
-            tenantId,
+        const toolStartedAt =
+          Date.now();
 
-            environment,
 
-            connectionId,
+        console.log(
+          [
+            "[researchWebSearch] START",
+            `run=${internalRunId}`,
+            `depth=${searchDepth ?? "default"}`,
+            `maxResults=${maxResults}`,
+            `query=${JSON.stringify(query)}`,
+          ].join(" "),
+        );
 
-            query,
 
-            searchDepth,
+        let result;
 
-            topic,
 
-            country,
+        try {
+          result =
+            await tavilySearch({
+              tenantId,
 
-            maxResults,
+              environment,
 
-            includeAnswer:
-              false,
+              connectionId,
 
-            includeRawContent:
-              false,
-          });
+              query,
+
+              searchDepth,
+
+              topic,
+
+              country,
+
+              maxResults,
+
+              includeAnswer:
+                false,
+
+              includeRawContent:
+                false,
+
+              timeoutMs:
+                15000,
+            });
+        }
+        catch (error) {
+          console.error(
+            [
+              "[researchWebSearch] ERROR",
+              `run=${internalRunId}`,
+              `elapsedMs=${Date.now() - toolStartedAt}`,
+              `error=${
+                error instanceof Error
+                  ? JSON.stringify(error.message)
+                  : JSON.stringify(String(error))
+              }`,
+            ].join(" "),
+          );
+
+          throw error;
+        }
+
+
+        console.log(
+          [
+            "[researchWebSearch] END",
+            `run=${internalRunId}`,
+            `elapsedMs=${Date.now() - toolStartedAt}`,
+            `results=${result.results.length}`,
+            `requestId=${result.requestId ?? "none"}`,
+          ].join(" "),
+        );
 
         if (
           internalRunId &&

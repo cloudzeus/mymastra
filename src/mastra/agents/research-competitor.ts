@@ -34,7 +34,7 @@ const researchAccountingDefaults =
     provider:
       "openrouter",
     model:
-      "deepseek/deepseek-v4-flash",
+      process.env.MASTRA_OPENROUTER_MODEL_ID ?? "auto",
 
     onRunFinished:
       clearResearchExecutionBudget,
@@ -505,7 +505,7 @@ export const researchCompetitorAgent =
       "Research & Competitor Analyst",
 
     model:
-      "openrouter/deepseek/deepseek-v4-flash",
+      `openrouter/${process.env.MASTRA_OPENROUTER_MODEL_ID ?? "auto"}`,
 
     instructions:
       RESEARCH_COMPETITOR_INSTRUCTIONS,

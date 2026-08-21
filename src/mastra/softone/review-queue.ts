@@ -386,3 +386,78 @@ export function listSoftOneReviewQueue(
       status,
   );
 }
+
+
+export function setSoftOneReviewQueueStatus(
+  id: string,
+  status:
+    SoftOneReviewQueueStatus,
+  note?: string,
+): SoftOneReviewQueueItem {
+  const queue =
+    loadSoftOneReviewQueue();
+
+
+  const index =
+    queue.items.findIndex(
+      item =>
+        item.id ===
+        id,
+    );
+
+
+  if (
+    index < 0
+  ) {
+    throw new Error(
+      `SoftOne review queue item not found: ${id}`,
+    );
+  }
+
+
+  const current =
+    queue.items[
+      index
+    ];
+
+
+  const now =
+    new Date()
+      .toISOString();
+
+
+  const updated:
+    SoftOneReviewQueueItem = {
+    ...current,
+
+    status,
+
+    notes: [
+      ...current.notes,
+      ...(
+        note
+          ? [
+              note,
+            ]
+          : []
+      ),
+    ],
+
+    updatedAt:
+      now,
+  };
+
+
+  queue.items[
+    index
+  ] =
+    updated;
+
+
+  saveSoftOneReviewQueue(
+    queue,
+  );
+
+
+  return updated;
+}
