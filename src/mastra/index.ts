@@ -4,10 +4,12 @@ import { MastraEditor } from "@mastra/editor";
 
 import { analystAgent } from "./agents/analyst";
 import { developerAgent } from "./agents/developer";
+import { qaAgent } from "./agents/qa";
 import { researchCompetitorAgent } from "./agents/research-competitor";
 import { uiUxDesignerAgent } from "./agents/ui-ux-designer";
 import { contentCreatorAgent } from "./agents/content-creator";
 import { copywriterAgent } from "./agents/copywriter";
+import { searchVisibilityAgent } from "./agents/search-visibility";
 
 
 if (!process.env.DATABASE_URL) {
@@ -25,9 +27,11 @@ export const mastra = new Mastra({
   agents: {
     analystAgent,
     developerAgent,
+    qaAgent,
     researchCompetitorAgent,
     uiUxDesignerAgent,
     contentCreatorAgent,
     copywriterAgent,
+    searchVisibilityAgent,
   },
 });

@@ -9,6 +9,7 @@ export type SpecialistRole =
   | "COPYWRITER"
   | "SEARCH_VISIBILITY"
   | "CONTENT_CREATOR"
+  | "QUALITY_ASSURANCE"
   | "PROPOSAL_SOLUTIONS_CONSULTANT";
 
 
@@ -25,6 +26,7 @@ export type SpecialistArtifactType =
   | "COPY_PACKAGE"
   | "SEARCH_VISIBILITY_PACKAGE"
   | "CREATIVE_CONTENT_PACKAGE"
+  | "QA_REPORT"
   | "CUSTOMER_PROPOSAL_PACKAGE";
 
 
