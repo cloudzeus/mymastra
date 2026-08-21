@@ -584,6 +584,29 @@ export async function createDeveloperWorkOrder(
         $7::jsonb
       )
 
+      ON CONFLICT (
+        project_id,
+        task_id
+      )
+      DO UPDATE SET
+        project_definition_id =
+          EXCLUDED.project_definition_id,
+
+        project_definition_version =
+          EXCLUDED.project_definition_version,
+
+        task_type =
+          EXCLUDED.task_type,
+
+        status =
+          EXCLUDED.status,
+
+        work_order =
+          EXCLUDED.work_order,
+
+        updated_at =
+          now()
+
       RETURNING
         id::text,
         project_id::text,
