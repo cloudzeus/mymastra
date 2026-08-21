@@ -441,6 +441,10 @@ function findBaseline(
 
                 name:
                   field.name,
+
+                editor:
+                  field.editor ??
+                  undefined,
               },
             ],
           ),
@@ -891,7 +895,10 @@ async function discoverLive(
 
   const selectedTables =
     tablesResponse.tables.filter(
-      rawTable => {
+      (
+        rawTable:
+          GenericRecord,
+      ) => {
         const logicalName =
           canonical(
             text(

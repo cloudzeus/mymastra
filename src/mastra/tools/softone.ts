@@ -29,6 +29,16 @@ async function raw<T = SoftOneResponse>(
   connection: SoftOneConnection,
   payload: Record<string, unknown>,
 ): Promise<T> {
+  const timeoutMs =
+    Math.max(
+      5_000,
+      Number(
+        process.env.SOFTONE_WS_TIMEOUT_MS ??
+        20_000,
+      ),
+    );
+
+
   const res = await fetch(connection.url, {
     method: "POST",
     headers: {
@@ -37,6 +47,11 @@ async function raw<T = SoftOneResponse>(
     },
     body: JSON.stringify(payload),
     cache: "no-store",
+
+    signal:
+      AbortSignal.timeout(
+        timeoutMs,
+      ),
   });
 
   const received = Buffer.from(await res.arrayBuffer());
@@ -106,6 +121,7 @@ async function authenticate(
       branch: connection.branch,
       module: connection.module ?? "0",
       refid: connection.refid,
+      appId: connection.appId,
     },
   );
 
@@ -125,7 +141,7 @@ async function authenticate(
   return auth.clientID;
 }
 
-async function withAuth<T = SoftOneResponse>(
+export async function callSoftOneAuthenticated<T = SoftOneResponse>(
   connectionId: string,
   payload: Record<string, unknown>,
 ): Promise<T> {
@@ -254,7 +270,7 @@ export const softoneCall = createTool({
      * override the approved service by including another
      * service property inside payload.
      */
-    return withAuth(
+    return callSoftOneAuthenticated(
       connectionId,
       {
         ...payload,
