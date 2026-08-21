@@ -692,14 +692,21 @@ export function createSpecialistAgentHandler(
       }
 
 
+      /*
+       * context.projectDefinitionId is the persisted
+       * app.project_definitions record id.
+       *
+       * workOrder.projectDefinitionId is the logical id inside
+       * ProjectDefinitionPackage. They are intentionally different
+       * identifiers and must never be compared directly.
+       */
       if (
         developerExecutionContext
-          .workOrder
-          .projectDefinitionId !==
+          .projectDefinitionRecordId !==
         context.projectDefinitionId
       ) {
         throw new Error(
-          "QUALITY_ASSURANCE upstream DeveloperWorkOrder ProjectDefinition mismatch",
+          "QUALITY_ASSURANCE upstream DeveloperWorkOrder persisted ProjectDefinition mismatch",
         );
       }
 
